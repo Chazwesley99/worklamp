@@ -76,15 +76,15 @@
   - **Property 3: Role-based access enforcement**
   - **Validates: Requirements 26.6**
 
-- [ ] 3. User Profile Management
-- [ ] 3.1 Implement user profile API endpoints
+- [x] 3. User Profile Management
+- [x] 3.1 Implement user profile API endpoints
   - GET /api/users/me endpoint
   - PATCH /api/users/me endpoint
   - PATCH /api/users/me/password endpoint (email users only)
   - POST /api/users/me/avatar endpoint with image upload
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
 
-- [ ] 3.2 Build image optimization service
+- [x] 3.2 Build image optimization service
   - Implement Sharp-based image optimization
   - Create local file storage handler
   - Implement S3-compatible cloud storage handler
@@ -99,7 +99,7 @@
   - **Property 28: Storage location consistency**
   - **Validates: Requirements 17.1, 17.2**
 
-- [ ] 3.5 Create user profile frontend components
+- [x] 3.5 Create user profile frontend components
   - ProfileForm component with avatar upload
   - Password change form (conditional on auth provider)
   - Profile page with theme toggle

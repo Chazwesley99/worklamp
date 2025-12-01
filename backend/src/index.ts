@@ -7,6 +7,7 @@ import passport from './config/passport';
 import { prisma } from './config/database';
 import { connectRedis, disconnectRedis } from './config/redis';
 import authRoutes from './routes/auth.routes';
+import userRoutes from './routes/user.routes';
 
 dotenv.config();
 
@@ -26,8 +27,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(passport.initialize());
 
+// Serve static files from uploads directory (for local storage)
+app.use('/uploads', express.static('uploads'));
+
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
 
 // Health check endpoint
 app.get('/health', async (req, res) => {
