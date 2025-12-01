@@ -29,8 +29,8 @@
   - Install and configure fast-check for property-based testing
   - _Requirements: 25.1, 25.2_
 
-- [ ] 2. Authentication System
-- [ ] 2.1 Implement password hashing and JWT utilities
+- [x] 2. Authentication System
+- [x] 2.1 Implement password hashing and JWT utilities
   - Create bcrypt password hashing functions (cost factor 12)
   - Implement JWT token generation and verification
   - Create refresh token management with Redis
@@ -40,7 +40,7 @@
   - **Property 2: Password hashing irreversibility**
   - **Validates: Requirements 19.3**
 
-- [ ] 2.3 Build email/password authentication API
+- [x] 2.3 Build email/password authentication API
   - POST /api/auth/signup endpoint with validation
   - POST /api/auth/login endpoint
   - POST /api/auth/logout endpoint
@@ -56,7 +56,7 @@
   - **Property 4: Email verification requirement**
   - **Validates: Requirements 5.5**
 
-- [ ] 2.6 Implement Google OAuth flow
+- [x] 2.6 Implement Google OAuth flow
   - Configure Passport.js with Google strategy
   - GET /api/auth/google and callback endpoints
   - Import user data (email, name, profile picture 600x600px)
@@ -66,7 +66,7 @@
   - **Property 29: Profile picture size requirement**
   - **Validates: Requirements 5.6**
 
-- [ ] 2.8 Create authentication middleware
+- [x] 2.8 Create authentication middleware
   - JWT verification middleware
   - Tenant context injection
   - Role-based authorization middleware
