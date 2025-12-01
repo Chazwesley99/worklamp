@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  # PostgreSQL database for main application
+  postgres:
+    image: postgres:15-alpine
+    container_name: worklamp-postgres-dev
+    environment:
+      POSTGRES_USER: worklamp
+      POSTGRES_PASSWORD: worklamp_dev_password
+      POSTGRES_DB: worklamp
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U worklamp']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # PostgreSQL database for demo environment
+  postgres_demo:
+    image: postgres:15-alpine
+    container_name: worklamp-postgres-demo-dev
+    environment:
+      POSTGRES_USER: worklamp
+      POSTGRES_PASSWORD: worklamp_dev_password
+      POSTGRES_DB: worklamp_demo
+    ports:
+      - '5433:5432'
+    volumes:
+      - postgres_demo_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U worklamp']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis for sessions and pub/sub
+  redis:
+    image: redis:7-alpine
+    container_name: worklamp-redis-dev
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+  postgres_demo_data:
+  redis_data:
+
+networks:
+  default:
+    name: worklamp-network-dev

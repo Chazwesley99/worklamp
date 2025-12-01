@@ -1,0 +1,15 @@
+node_modules
+.next
+build
+dist
+coverage
+*.log
+.env*
+
+# Prisma generated/compiled files
+backend/prisma/**/*.js
+backend/prisma/migrations
+
+# Build outputs
+frontend/.next
+backend/dist

@@ -1,0 +1,455 @@
+// Prisma schema for Worklamp platform
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  passwordHash  String?  // null for OAuth users
+  name          String
+  avatarUrl     String?
+  authProvider  String   @default("email") // 'email' | 'google'
+  emailVerified Boolean  @default(false)
+  emailOptIn    Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  ownedTenants     Tenant[]         @relation("TenantOwner")
+  tenantMemberships TenantMember[]
+  createdTasks     Task[]           @relation("TaskCreator")
+  taskAssignments  TaskAssignment[]
+  createdBugs      Bug[]            @relation("BugCreator")
+  bugAssignments   BugAssignment[]
+  bugVotes         BugVote[]
+  createdFeatures  FeatureRequest[] @relation("FeatureCreator")
+  featureAssignments FeatureAssignment[]
+  featureVotes     FeatureVote[]
+  comments         Comment[]
+  createdChannels  Channel[]        @relation("ChannelCreator")
+  channelPermissions ChannelPermission[]
+  messages         Message[]
+  notes            Note[]
+  notifications    Notification[]
+  createdEnvVars   EnvVar[]         @relation("EnvVarCreator")
+  createdChangeOrders ChangeOrder[] @relation("ChangeOrderCreator")
+
+  @@index([email])
+}
+
+// Tenant model
+model Tenant {
+  id              String   @id @default(uuid())
+  name            String
+  ownerId         String
+  subscriptionTier String  @default("free") // 'free' | 'paid'
+  maxProjects     Int      @default(1)
+  maxTeamMembers  Int      @default(1)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  owner    User           @relation("TenantOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  members  TenantMember[]
+  projects Project[]
+  aiConfig AIConfig?
+
+  @@index([ownerId])
+}
+
+// TenantMember model
+model TenantMember {
+  id        String   @id @default(uuid())
+  tenantId  String
+  userId    String
+  role      String   // 'owner' | 'admin' | 'developer' | 'auditor'
+  createdAt DateTime @default(now())
+
+  // Relations
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, userId])
+  @@index([tenantId])
+  @@index([userId])
+}
+
+// Project model
+model Project {
+  id                    String   @id @default(uuid())
+  tenantId              String
+  name                  String
+  description           String?
+  status                String   @default("active") // 'active' | 'completed' | 'archived'
+  publicBugTracking     Boolean  @default(false)
+  publicFeatureRequests Boolean  @default(false)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  // Relations
+  tenant          Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  milestones      Milestone[]
+  tasks           Task[]
+  bugs            Bug[]
+  featureRequests FeatureRequest[]
+  channels        Channel[]
+  envVars         EnvVar[]
+  changeOrders    ChangeOrder[]
+
+  @@index([tenantId])
+}
+
+// Milestone model
+model Milestone {
+  id                      String    @id @default(uuid())
+  projectId               String
+  name                    String
+  description             String?
+  estimatedCompletionDate DateTime
+  actualCompletionDate    DateTime?
+  status                  String    @default("planned") // 'planned' | 'in-progress' | 'completed'
+  isLocked                Boolean   @default(false)
+  order                   Int       @default(0)
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+
+  // Relations
+  project      Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tasks        Task[]
+  changeOrders ChangeOrder[]
+
+  @@index([projectId])
+}
+
+// Task model
+model Task {
+  id          String   @id @default(uuid())
+  projectId   String
+  milestoneId String?
+  title       String
+  description String?
+  category    String?
+  priority    Int      @default(0)
+  status      String   @default("todo") // 'todo' | 'in-progress' | 'done'
+  ownerId     String?
+  createdById String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  project     Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  milestone   Milestone?       @relation(fields: [milestoneId], references: [id], onDelete: SetNull)
+  createdBy   User             @relation("TaskCreator", fields: [createdById], references: [id])
+  assignments TaskAssignment[]
+
+  @@index([projectId])
+  @@index([milestoneId])
+  @@index([createdById])
+}
+
+// TaskAssignment model
+model TaskAssignment {
+  id         String   @id @default(uuid())
+  taskId     String
+  userId     String
+  assignedAt DateTime @default(now())
+
+  // Relations
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([taskId, userId])
+  @@index([taskId])
+  @@index([userId])
+}
+
+// Bug model
+model Bug {
+  id          String   @id @default(uuid())
+  projectId   String
+  title       String
+  description String
+  url         String?
+  imageUrl    String?
+  priority    Int      @default(0)
+  status      String   @default("open") // 'open' | 'in-progress' | 'resolved' | 'closed'
+  votes       Int      @default(0)
+  ownerId     String?
+  createdById String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  project     Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdBy   User            @relation("BugCreator", fields: [createdById], references: [id])
+  assignments BugAssignment[]
+  bugVotes    BugVote[]
+
+  @@index([projectId])
+  @@index([createdById])
+}
+
+// BugAssignment model
+model BugAssignment {
+  id         String   @id @default(uuid())
+  bugId      String
+  userId     String
+  assignedAt DateTime @default(now())
+
+  // Relations
+  bug  Bug  @relation(fields: [bugId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([bugId, userId])
+  @@index([bugId])
+  @@index([userId])
+}
+
+// BugVote model
+model BugVote {
+  id        String   @id @default(uuid())
+  bugId     String
+  userId    String?  // null for anonymous public votes
+  ipAddress String
+  createdAt DateTime @default(now())
+
+  // Relations
+  bug  Bug   @relation(fields: [bugId], references: [id], onDelete: Cascade)
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([bugId])
+  @@index([userId])
+  @@index([ipAddress])
+}
+
+// FeatureRequest model
+model FeatureRequest {
+  id          String   @id @default(uuid())
+  projectId   String
+  title       String
+  description String
+  votes       Int      @default(0)
+  priority    Int      @default(0)
+  status      String   @default("proposed") // 'proposed' | 'planned' | 'in-progress' | 'completed' | 'rejected'
+  ownerId     String?
+  createdById String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  project     Project              @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdBy   User                 @relation("FeatureCreator", fields: [createdById], references: [id])
+  assignments FeatureAssignment[]
+  featureVotes FeatureVote[]
+
+  @@index([projectId])
+  @@index([createdById])
+}
+
+// FeatureAssignment model
+model FeatureAssignment {
+  id               String   @id @default(uuid())
+  featureRequestId String
+  userId           String
+  assignedAt       DateTime @default(now())
+
+  // Relations
+  featureRequest FeatureRequest @relation(fields: [featureRequestId], references: [id], onDelete: Cascade)
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([featureRequestId, userId])
+  @@index([featureRequestId])
+  @@index([userId])
+}
+
+// FeatureVote model
+model FeatureVote {
+  id               String   @id @default(uuid())
+  featureRequestId String
+  userId           String?
+  ipAddress        String
+  createdAt        DateTime @default(now())
+
+  // Relations
+  featureRequest FeatureRequest @relation(fields: [featureRequestId], references: [id], onDelete: Cascade)
+  user           User?          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([featureRequestId])
+  @@index([userId])
+  @@index([ipAddress])
+}
+
+// Comment model
+model Comment {
+  id           String   @id @default(uuid())
+  resourceType String   // 'task' | 'bug' | 'feature' | 'milestone'
+  resourceId   String
+  userId       String
+  content      String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([resourceType, resourceId])
+  @@index([userId])
+}
+
+// Channel model
+model Channel {
+  id          String   @id @default(uuid())
+  projectId   String
+  name        String
+  description String?
+  isPrivate   Boolean  @default(false)
+  createdById String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  project     Project             @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdBy   User                @relation("ChannelCreator", fields: [createdById], references: [id])
+  permissions ChannelPermission[]
+  messages    Message[]
+
+  @@index([projectId])
+  @@index([createdById])
+}
+
+// ChannelPermission model
+model ChannelPermission {
+  id        String   @id @default(uuid())
+  channelId String
+  userId    String
+  canView   Boolean  @default(true)
+  canPost   Boolean  @default(true)
+  grantedAt DateTime @default(now())
+
+  // Relations
+  channel Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([channelId, userId])
+  @@index([channelId])
+  @@index([userId])
+}
+
+// Message model
+model Message {
+  id        String   @id @default(uuid())
+  channelId String
+  userId    String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  channel Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([channelId])
+  @@index([userId])
+}
+
+// Note model
+model Note {
+  id        String  @id @default(uuid())
+  userId    String
+  content   String
+  color     String?
+  positionX Int?
+  positionY Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// EnvVar model
+model EnvVar {
+  id          String   @id @default(uuid())
+  projectId   String
+  key         String
+  value       String   // Encrypted at rest
+  environment String   // 'development' | 'production'
+  createdById String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdBy User    @relation("EnvVarCreator", fields: [createdById], references: [id])
+
+  @@unique([projectId, key, environment])
+  @@index([projectId])
+  @@index([createdById])
+}
+
+// Notification model
+model Notification {
+  id           String   @id @default(uuid())
+  userId       String
+  type         String   // 'bug_created' | 'feature_created' | 'task_assigned' | 'mention' | 'system'
+  title        String
+  message      String
+  resourceType String?
+  resourceId   String?
+  isRead       Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isRead])
+}
+
+// ChangeOrder model
+model ChangeOrder {
+  id          String   @id @default(uuid())
+  projectId   String
+  milestoneId String
+  title       String
+  description String
+  status      String   @default("pending") // 'pending' | 'approved' | 'rejected'
+  createdById String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  project   Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  milestone Milestone @relation(fields: [milestoneId], references: [id], onDelete: Cascade)
+  createdBy User      @relation("ChangeOrderCreator", fields: [createdById], references: [id])
+
+  @@index([projectId])
+  @@index([milestoneId])
+  @@index([createdById])
+}
+
+// AIConfig model
+model AIConfig {
+  id        String   @id @default(uuid())
+  tenantId  String   @unique
+  provider  String   // 'openai' | 'google' | 'platform'
+  apiKey    String?  // Encrypted, null if using platform keys
+  isEnabled Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+}
