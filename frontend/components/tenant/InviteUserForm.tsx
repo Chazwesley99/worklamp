@@ -39,8 +39,9 @@ export function InviteUserForm({ onInvite }: InviteUserFormProps) {
       setSuccess(`Invitation sent to ${email}`);
       setEmail('');
       setRole('developer');
-    } catch (err: any) {
-      setError(err.error?.message || 'Failed to send invitation');
+    } catch (err: unknown) {
+      const apiError = err as { error?: { message?: string } };
+      setError(apiError.error?.message || 'Failed to send invitation');
     } finally {
       setIsSubmitting(false);
     }

@@ -31,8 +31,9 @@ export default function TeamPage() {
       // Get current user ID from tenant owner or first member
       // In a real app, this would come from auth context
       setCurrentUserId(tenantData.owner.id);
-    } catch (err: any) {
-      setError(err.error?.message || 'Failed to load team data');
+    } catch (err: unknown) {
+      const apiError = err as { error?: { message?: string } };
+      setError(apiError.error?.message || 'Failed to load team data');
     } finally {
       setLoading(false);
     }
@@ -51,8 +52,9 @@ export default function TeamPage() {
       // Reload members list
       const membersData = await tenantApi.getTenantMembers();
       setMembers(membersData.members);
-    } catch (err: any) {
-      alert(err.error?.message || 'Failed to remove member');
+    } catch (err: unknown) {
+      const apiError = err as { error?: { message?: string } };
+      alert(apiError.error?.message || 'Failed to remove member');
     }
   };
 
@@ -62,8 +64,9 @@ export default function TeamPage() {
       // Reload members list
       const membersData = await tenantApi.getTenantMembers();
       setMembers(membersData.members);
-    } catch (err: any) {
-      alert(err.error?.message || 'Failed to update role');
+    } catch (err: unknown) {
+      const apiError = err as { error?: { message?: string } };
+      alert(apiError.error?.message || 'Failed to update role');
     }
   };
 

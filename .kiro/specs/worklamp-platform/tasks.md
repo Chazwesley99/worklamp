@@ -179,8 +179,8 @@
   - Add CORS configuration
   - _Requirements: 19.5, 19.6_
 
-- [ ] 6. Project Management
-- [ ] 6.1 Implement project CRUD API
+- [x] 6. Project Management
+- [x] 6.1 Implement project CRUD API
   - GET /api/projects endpoint with tenant filtering
   - POST /api/projects endpoint with limit validation
   - GET /api/projects/:id endpoint
@@ -188,14 +188,14 @@
   - DELETE /api/projects/:id endpoint
   - _Requirements: 8.4, 8.5_
 
-- [ ] 6.2 Create project frontend components
+- [x] 6.2 Create project frontend components
   - ProjectList component
   - ProjectForm modal for create/edit
   - Project selector dropdown (paid tier)
   - Project settings page
   - _Requirements: 8.4, 8.5_
 
-- [ ] 6.3 Build dashboard layout
+- [x] 6.3 Build dashboard layout
   - DashboardLayout with sidebar and header
   - Project selector in header (paid tier only)
   - Navigation menu
