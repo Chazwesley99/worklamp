@@ -230,6 +230,63 @@ export class AuthService {
   async logoutAll(userId: string): Promise<void> {
     await revokeAllRefreshTokens(userId);
   }
+
+  /**
+   * Accept tenant invitation
+   */
+  async acceptInvitation(
+    userId: string,
+    invitationToken: string
+  ): Promise<{
+    tenant: { id: string; name: string };
+    role: string;
+  }> {
+    try {
+      // Import email service to verify token
+      const { emailService } = await import('./email.service');
+      const { tenantId, email, role } = emailService.verifyInvitationToken(invitationToken);
+
+      // Get user to verify email matches
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+      });
+
+      if (!user) {
+        throw new Error('USER_NOT_FOUND');
+      }
+
+      if (user.email !== email) {
+        throw new Error('EMAIL_MISMATCH');
+      }
+
+      // Import tenant service to add member
+      const { tenantService } = await import('./tenant.service');
+      await tenantService.addMemberToTenant(tenantId, userId, role as any);
+
+      // Get tenant info
+      const tenant = await prisma.tenant.findUnique({
+        where: { id: tenantId },
+        select: {
+          id: true,
+          name: true,
+        },
+      });
+
+      if (!tenant) {
+        throw new Error('TENANT_NOT_FOUND');
+      }
+
+      return {
+        tenant,
+        role,
+      };
+    } catch (error: any) {
+      if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
+        throw new Error('INVALID_INVITATION_TOKEN');
+      }
+      throw error;
+    }
+  }
 }
 
 export const authService = new AuthService();

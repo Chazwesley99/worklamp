@@ -8,6 +8,8 @@ import { prisma } from './config/database';
 import { connectRedis, disconnectRedis } from './config/redis';
 import authRoutes from './routes/auth.routes';
 import userRoutes from './routes/user.routes';
+import tenantRoutes from './routes/tenant.routes';
+import projectRoutes from './routes/project.routes';
 
 dotenv.config();
 
@@ -33,6 +35,8 @@ app.use('/uploads', express.static('uploads'));
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/tenants', tenantRoutes);
+app.use('/api/projects', projectRoutes);
 
 // Health check endpoint
 app.get('/health', async (req, res) => {

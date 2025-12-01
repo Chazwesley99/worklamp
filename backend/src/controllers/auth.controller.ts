@@ -235,6 +235,90 @@ export class AuthController {
       });
     }
   }
+
+  /**
+   * POST /api/auth/accept-invitation
+   * Accept tenant invitation (for existing users)
+   */
+  async acceptInvitation(req: Request, res: Response) {
+    try {
+      const { token } = req.body;
+      const authReq = req as { user?: { userId: string } };
+      const userId = authReq.user?.userId;
+
+      if (!token) {
+        return res.status(400).json({
+          error: {
+            code: 'VALIDATION_FAILED',
+            message: 'Invitation token is required',
+          },
+        });
+      }
+
+      if (!userId) {
+        return res.status(401).json({
+          error: {
+            code: 'UNAUTHORIZED',
+            message: 'Authentication required',
+          },
+        });
+      }
+
+      const result = await authService.acceptInvitation(userId, token);
+
+      res.json({
+        message: 'Invitation accepted successfully',
+        tenant: result.tenant,
+        role: result.role,
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.message === 'INVALID_INVITATION_TOKEN') {
+          return res.status(400).json({
+            error: {
+              code: 'INVALID_INVITATION_TOKEN',
+              message: 'Invalid or expired invitation token',
+            },
+          });
+        }
+
+        if (error.message === 'EMAIL_MISMATCH') {
+          return res.status(400).json({
+            error: {
+              code: 'EMAIL_MISMATCH',
+              message: 'This invitation was sent to a different email address',
+            },
+          });
+        }
+
+        if (error.message === 'LIMIT_EXCEEDED_TEAM_MEMBERS') {
+          return res.status(409).json({
+            error: {
+              code: 'LIMIT_EXCEEDED_TEAM_MEMBERS',
+              message: 'Team member limit reached for this tenant',
+            },
+          });
+        }
+
+        if (error.message === 'USER_ALREADY_MEMBER') {
+          return res.status(409).json({
+            error: {
+              code: 'USER_ALREADY_MEMBER',
+              message: 'You are already a member of this tenant',
+            },
+          });
+        }
+      }
+
+      console.error('Accept invitation error:', error);
+      res.status(500).json({
+        error: {
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'An error occurred while accepting invitation',
+        },
+      });
+    }
+  }
 }
 
 export const authController = new AuthController();

@@ -8,6 +8,11 @@ export interface AuthenticatedRequest extends Request {
   tenantId?: string;
 }
 
+// Alias for convenience
+export interface AuthRequest extends Request {
+  user: TokenPayload;
+}
+
 /**
  * Middleware to verify JWT access token
  * Extracts token from Authorization header and verifies it
@@ -275,3 +280,6 @@ export function optionalAuth(req: Request, res: Response, next: NextFunction) {
     next();
   }
 }
+
+// Export authenticate as an alias for authenticateToken
+export const authenticate = authenticateToken;

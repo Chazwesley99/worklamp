@@ -105,14 +105,14 @@
   - Profile page with theme toggle
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
 
-- [ ] 4. Tenant and Subscription Management
-- [ ] 4.1 Implement tenant creation and management
+- [x] 4. Tenant and Subscription Management
+- [x] 4.1 Implement tenant creation and management
   - Create tenant on user signup (free tier default)
   - Implement tenant settings API
   - Add ADMIN_EMAIL initialization logic
   - _Requirements: 5.8, 7.1_
 
-- [ ] 4.2 Build team member invitation system
+- [x] 4.2 Build team member invitation system
   - POST /api/tenants/me/invite endpoint
   - Email invitation with registration link
   - Role assignment (admin, developer, auditor)
@@ -120,7 +120,7 @@
   - PATCH /api/tenants/members/:userId/role endpoint
   - _Requirements: 7.3, 7.4, 7.5_
 
-- [ ] 4.3 Implement subscription limit enforcement
+- [x] 4.3 Implement subscription limit enforcement
   - Project count validation
   - Team member count validation
   - Feature access control based on tier
@@ -138,7 +138,7 @@
   - **Property 9: Free tier feature restrictions**
   - **Validates: Requirements 7.1, 8.1**
 
-- [ ] 4.7 Create tenant management UI
+- [x] 4.7 Create tenant management UI
   - Team member list with role badges
   - Invite user form
   - Subscription tier display
