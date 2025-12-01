@@ -1,13 +1,14 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import { useUser, useUpdateProfile, useUploadAvatar } from '@/lib/hooks/useUser';
+import { useAuth } from '@/lib/contexts/AuthContext';
+import { useUpdateProfile, useUploadAvatar } from '@/lib/hooks/useUser';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { User, Upload } from 'lucide-react';
 
 export function ProfileForm() {
-  const { data: user, isLoading: isLoadingUser } = useUser();
+  const { user, refreshUser } = useAuth();
   const updateProfile = useUpdateProfile();
   const uploadAvatar = useUploadAvatar();
 
@@ -50,6 +51,9 @@ export function ProfileForm() {
         await updateProfile.mutateAsync({ name });
       }
 
+      // Refresh user data
+      await refreshUser();
+
       alert('Profile updated successfully!');
     } catch (error) {
       const apiError = error as { error?: { message?: string } };
@@ -57,16 +61,12 @@ export function ProfileForm() {
     }
   };
 
-  if (isLoadingUser) {
+  if (!user) {
     return (
       <div className="flex items-center justify-center p-8">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
       </div>
     );
-  }
-
-  if (!user) {
-    return <div className="p-8 text-center text-gray-500">Failed to load user profile</div>;
   }
 
   return (

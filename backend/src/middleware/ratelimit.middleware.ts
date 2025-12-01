@@ -35,7 +35,7 @@ export const authLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   skipSuccessfulRequests: true, // Don't count successful requests
-  skip: () => process.env.NODE_ENV === 'test', // Skip rate limiting in tests
+  skip: () => process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development', // Skip rate limiting in tests and development
 });
 
 /**

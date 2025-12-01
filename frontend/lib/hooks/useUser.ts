@@ -26,7 +26,12 @@ export interface ChangePasswordData {
 export function useUser() {
   return useQuery<User>({
     queryKey: ['user', 'me'],
-    queryFn: () => apiClient.get<User>('/api/users/me'),
+    queryFn: async () => {
+      const response = await apiClient.get<User>('/api/users/me');
+      return response;
+    },
+    retry: 1,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 }
 

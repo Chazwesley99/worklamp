@@ -1,6 +1,16 @@
+'use client';
+
 import Link from 'next/link';
+import { useState } from 'react';
+import { useAuth } from '@/lib/contexts/AuthContext';
+import { LoginModal } from '@/components/auth/LoginModal';
+import { SignupModal } from '@/components/auth/SignupModal';
+import { Button } from '@/components/ui/Button';
 
 export default function Home() {
+  const { isAuthenticated, user, logout } = useAuth();
+  const [showLogin, setShowLogin] = useState(false);
+  const [showSignup, setShowSignup] = useState(false);
   return (
     <main className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       {/* Header */}
@@ -13,25 +23,44 @@ export default function Home() {
               </div>
               <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">Worklamp</span>
             </div>
-            <nav className="flex gap-4">
-              <Link
-                href="/dashboard"
-                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100"
-              >
-                Dashboard
-              </Link>
-              <Link
-                href="/profile"
-                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100"
-              >
-                Profile
-              </Link>
-              <Link
-                href="/team"
-                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100"
-              >
-                Team
-              </Link>
+            <nav className="flex items-center gap-4">
+              {isAuthenticated ? (
+                <>
+                  <Link
+                    href="/dashboard"
+                    className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100"
+                  >
+                    Dashboard
+                  </Link>
+                  <Link
+                    href="/profile"
+                    className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100"
+                  >
+                    Profile
+                  </Link>
+                  <Link
+                    href="/team"
+                    className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100"
+                  >
+                    Team
+                  </Link>
+                  <div className="flex items-center gap-2 px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-md">
+                    <span className="text-sm text-gray-700 dark:text-gray-300">{user?.name}</span>
+                  </div>
+                  <Button variant="outline" size="sm" onClick={() => logout()}>
+                    Logout
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button variant="ghost" size="sm" onClick={() => setShowLogin(true)}>
+                    Login
+                  </Button>
+                  <Button size="sm" onClick={() => setShowSignup(true)}>
+                    Sign Up
+                  </Button>
+                </>
+              )}
             </nav>
           </div>
         </div>
@@ -192,6 +221,24 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {/* Auth Modals */}
+      <LoginModal
+        isOpen={showLogin}
+        onClose={() => setShowLogin(false)}
+        onSwitchToSignup={() => {
+          setShowLogin(false);
+          setShowSignup(true);
+        }}
+      />
+      <SignupModal
+        isOpen={showSignup}
+        onClose={() => setShowSignup(false)}
+        onSwitchToLogin={() => {
+          setShowSignup(false);
+          setShowLogin(true);
+        }}
+      />
     </main>
   );
 }
