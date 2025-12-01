@@ -1,12 +1,13 @@
 import { Router } from 'express';
 import { projectController } from '../controllers/project.controller';
-import { authenticate } from '../middleware/auth.middleware';
+import { authenticate, setTenantContext } from '../middleware/auth.middleware';
 import { canCreateProject, requireRole } from '../middleware/subscription.middleware';
 
 const router = Router();
 
-// All project routes require authentication
+// All project routes require authentication and tenant context
 router.use(authenticate);
+router.use(setTenantContext);
 
 // Get all projects for tenant
 router.get('/', projectController.getProjects.bind(projectController));

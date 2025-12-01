@@ -2,16 +2,19 @@ import { Router } from 'express';
 import passport from '../config/passport';
 import { authController } from '../controllers/auth.controller';
 import { generateTokens } from '../utils/jwt';
+import { authLimiter } from '../middleware/ratelimit.middleware';
 
 const router = Router();
 
-// Email/password authentication routes
-router.post('/signup', (req, res) => authController.signup(req, res));
-router.post('/verify-email', (req, res) => authController.verifyEmail(req, res));
-router.post('/login', (req, res) => authController.login(req, res));
-router.post('/refresh', (req, res) => authController.refresh(req, res));
+// Email/password authentication routes with rate limiting
+router.post('/signup', authLimiter, (req, res) => authController.signup(req, res));
+router.post('/verify-email', authLimiter, (req, res) => authController.verifyEmail(req, res));
+router.post('/login', authLimiter, (req, res) => authController.login(req, res));
+router.post('/refresh', authLimiter, (req, res) => authController.refresh(req, res));
 router.post('/logout', (req, res) => authController.logout(req, res));
-router.post('/accept-invitation', (req, res) => authController.acceptInvitation(req, res));
+router.post('/accept-invitation', authLimiter, (req, res) =>
+  authController.acceptInvitation(req, res)
+);
 
 // Google OAuth routes
 router.get(

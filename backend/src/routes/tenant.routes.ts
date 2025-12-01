@@ -1,11 +1,12 @@
 import { Router } from 'express';
 import { tenantController } from '../controllers/tenant.controller';
-import { authenticate } from '../middleware/auth.middleware';
+import { authenticate, setTenantContext } from '../middleware/auth.middleware';
 
 const router = Router();
 
-// All tenant routes require authentication
+// All tenant routes require authentication and tenant context
 router.use(authenticate);
+router.use(setTenantContext);
 
 // Get current tenant information
 router.get('/me', tenantController.getCurrentTenant.bind(tenantController));

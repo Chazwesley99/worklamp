@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { verifyAccessToken, TokenPayload } from '../utils/jwt';
-import { prisma } from '../config/database';
+import { prisma, tenantContext } from '../config/database';
 
 // Extend Express Request type to include user and tenant info
 export interface AuthenticatedRequest extends Request {
@@ -58,6 +58,28 @@ export function authenticateToken(req: Request, res: Response, next: NextFunctio
         message: 'Invalid authentication token',
       },
     });
+  }
+}
+
+/**
+ * Middleware to set tenant context for Prisma middleware
+ * Must be used after authenticateToken middleware
+ */
+export function setTenantContext(req: Request, res: Response, next: NextFunction) {
+  const authReq = req as AuthenticatedRequest;
+
+  if (!authReq.tenantId) {
+    return next();
+  }
+
+  // Run the rest of the request in the tenant context
+  try {
+    tenantContext.run({ tenantId: authReq.tenantId }, () => {
+      next();
+    });
+  } catch (error) {
+    console.error('Error in setTenantContext:', error);
+    next(error);
   }
 }
 
