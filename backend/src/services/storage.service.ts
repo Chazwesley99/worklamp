@@ -96,8 +96,9 @@ export class StorageService {
     // Write file
     await fs.writeFile(filePath, buffer);
 
-    // Return URL (relative path for local storage)
-    const url = `/uploads/${folder}/${filename}`;
+    // Return full URL with backend base URL for local storage
+    const backendUrl = process.env.BACKEND_URL || 'http://localhost:3001';
+    const url = `${backendUrl}/uploads/${folder}/${filename}`;
 
     return {
       url,

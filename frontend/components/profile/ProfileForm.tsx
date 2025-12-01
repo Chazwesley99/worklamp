@@ -2,6 +2,7 @@
 
 import React, { useState, useRef } from 'react';
 import { useAuth } from '@/lib/contexts/AuthContext';
+import { useToast } from '@/lib/contexts/ToastContext';
 import { useUpdateProfile, useUploadAvatar } from '@/lib/hooks/useUser';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -9,11 +10,11 @@ import { User, Upload } from 'lucide-react';
 
 export function ProfileForm() {
   const { user, refreshUser } = useAuth();
+  const { showSuccess, showError } = useToast();
   const updateProfile = useUpdateProfile();
   const uploadAvatar = useUploadAvatar();
 
   const [name, setName] = useState('');
-  const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -25,15 +26,27 @@ export function ProfileForm() {
     }
   }, [user]);
 
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setAvatarFile(file);
+      // Show preview immediately
       const reader = new FileReader();
       reader.onloadend = () => {
         setAvatarPreview(reader.result as string);
       };
       reader.readAsDataURL(file);
+
+      // Auto-upload the avatar
+      try {
+        await uploadAvatar.mutateAsync(file);
+        await refreshUser(); // Refresh user data to update avatar everywhere
+        showSuccess('Profile picture updated successfully!');
+      } catch (error) {
+        const apiError = error as { error?: { message?: string } };
+        showError(apiError?.error?.message || 'Failed to upload avatar');
+        // Revert preview on error
+        setAvatarPreview(user?.avatarUrl || null);
+      }
     }
   };
 
@@ -41,23 +54,17 @@ export function ProfileForm() {
     e.preventDefault();
 
     try {
-      // Upload avatar if changed
-      if (avatarFile) {
-        await uploadAvatar.mutateAsync(avatarFile);
-      }
-
       // Update profile if name changed
       if (name !== user?.name) {
         await updateProfile.mutateAsync({ name });
+        await refreshUser();
+        showSuccess('Profile updated successfully!');
+      } else {
+        showError('No changes to save');
       }
-
-      // Refresh user data
-      await refreshUser();
-
-      alert('Profile updated successfully!');
     } catch (error) {
       const apiError = error as { error?: { message?: string } };
-      alert(apiError?.error?.message || 'Failed to update profile');
+      showError(apiError?.error?.message || 'Failed to update profile');
     }
   };
 
@@ -129,7 +136,6 @@ export function ProfileForm() {
           variant="outline"
           onClick={() => {
             setName(user.name);
-            setAvatarFile(null);
             setAvatarPreview(user.avatarUrl || null);
           }}
         >

@@ -21,11 +21,15 @@ export class ApiClient {
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
 
+    // Get access token from localStorage
+    const accessToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+
     const response = await fetch(url, {
       ...options,
       credentials: 'include', // Include cookies for authentication
       headers: {
         ...options.headers,
+        ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
       },
     });
 

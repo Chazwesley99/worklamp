@@ -7,6 +7,7 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  accessToken: string | null;
   login: (email: string, password: string) => Promise<void>;
   signup: (data: {
     email: string;
@@ -23,28 +24,39 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [accessToken, setAccessToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load user on mount
+  // Load user and token on mount
   useEffect(() => {
-    loadUser();
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      setAccessToken(token);
+      loadUser();
+    } else {
+      setIsLoading(false);
+    }
   }, []);
 
   const loadUser = async () => {
     try {
-      const { user } = await authApi.getCurrentUser();
-      setUser(user);
+      const response = await authApi.getCurrentUser();
+      setUser(response);
     } catch (error) {
-      // User not authenticated
+      // User not authenticated or token expired
       setUser(null);
+      setAccessToken(null);
+      localStorage.removeItem('accessToken');
     } finally {
       setIsLoading(false);
     }
   };
 
   const login = async (email: string, password: string) => {
-    const { user } = await authApi.login({ email, password });
-    setUser(user);
+    const response = await authApi.login({ email, password });
+    setUser(response.user);
+    setAccessToken(response.accessToken);
+    localStorage.setItem('accessToken', response.accessToken);
   };
 
   const signup = async (data: {
@@ -54,13 +66,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     agreeToTerms: boolean;
     agreeToEmails: boolean;
   }) => {
-    const { user } = await authApi.signup(data);
-    setUser(user);
+    await authApi.signup(data);
+    // After signup, login automatically
+    await login(data.email, data.password);
   };
 
   const logout = async () => {
-    await authApi.logout();
+    try {
+      await authApi.logout();
+    } catch (error) {
+      // Ignore errors during logout
+    }
     setUser(null);
+    setAccessToken(null);
+    localStorage.removeItem('accessToken');
   };
 
   const refreshUser = async () => {
@@ -71,8 +90,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     <AuthContext.Provider
       value={{
         user,
+        accessToken,
         isLoading,
-        isAuthenticated: !!user,
+        isAuthenticated: !!user && !!accessToken,
         login,
         signup,
         logout,

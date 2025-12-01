@@ -7,6 +7,9 @@ export interface User {
   avatarUrl: string | null;
   authProvider: 'email' | 'google';
   emailVerified: boolean;
+  emailOptIn: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface LoginRequest {
@@ -24,6 +27,7 @@ export interface SignupRequest {
 
 export interface AuthResponse {
   user: User;
+  accessToken: string;
   message?: string;
 }
 
@@ -38,8 +42,8 @@ export const authApi = {
   /**
    * Sign up with email and password
    */
-  async signup(data: SignupRequest): Promise<AuthResponse> {
-    return apiClient.post<AuthResponse>('/api/auth/signup', data);
+  async signup(data: SignupRequest): Promise<{ user: User; message: string }> {
+    return apiClient.post<{ user: User; message: string }>('/api/auth/signup', data);
   },
 
   /**
@@ -52,8 +56,8 @@ export const authApi = {
   /**
    * Get current user
    */
-  async getCurrentUser(): Promise<{ user: User }> {
-    return apiClient.get<{ user: User }>('/api/users/me');
+  async getCurrentUser(): Promise<User> {
+    return apiClient.get<User>('/api/users/me');
   },
 
   /**
