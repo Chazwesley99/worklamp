@@ -10,12 +10,12 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
     const checkboxId = id || label?.toLowerCase().replace(/\s+/g, '-');
 
     return (
-      <div className="flex items-center">
+      <div className="flex items-center gap-compact">
         <input
           type="checkbox"
           id={checkboxId}
           className={cn(
-            'h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50',
+            'h-4 w-4 rounded border-input text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50 touch:h-5 touch:w-5 transition-colors',
             className
           )}
           ref={ref}
@@ -24,7 +24,7 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
         {label && (
           <label
             htmlFor={checkboxId}
-            className="ml-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer"
+            className="text-sm text-foreground cursor-pointer select-none"
           >
             {label}
           </label>

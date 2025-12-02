@@ -49,6 +49,25 @@ const config: Config = {
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
       },
+      spacing: {
+        // Minimal spacing scale for space efficiency (Requirement 18.4)
+        tight: '0.25rem', // 4px
+        compact: '0.5rem', // 8px
+        cozy: '0.75rem', // 12px
+      },
+      screens: {
+        // Touch-optimized breakpoints (Requirement 18.5)
+        xs: '475px',
+        touch: { raw: '(hover: none) and (pointer: coarse)' },
+      },
+      minHeight: {
+        // Touch-friendly minimum heights (Requirement 18.5)
+        touch: '44px',
+      },
+      minWidth: {
+        // Touch-friendly minimum widths (Requirement 18.5)
+        touch: '44px',
+      },
     },
   },
   plugins: [],

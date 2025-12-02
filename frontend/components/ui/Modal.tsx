@@ -40,7 +40,7 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalPr
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
@@ -51,7 +51,7 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalPr
       {/* Modal */}
       <div
         className={cn(
-          'relative bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full mx-4',
+          'relative bg-card text-card-foreground rounded-lg shadow-xl w-full',
           sizeClasses[size]
         )}
         role="dialog"
@@ -59,17 +59,17 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalPr
         aria-labelledby="modal-title"
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-          <h2 id="modal-title" className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+        <div className="flex items-center justify-between p-4 md:p-6 border-b border-border">
+          <h2 id="modal-title" className="text-lg md:text-xl font-semibold text-foreground">
             {title}
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+            className="text-muted-foreground hover:text-foreground transition-colors touch-target active:scale-95"
             aria-label="Close modal"
           >
             <svg
-              className="w-6 h-6"
+              className="w-5 h-5 md:w-6 md:h-6"
               fill="none"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -82,8 +82,8 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalPr
           </button>
         </div>
 
-        {/* Content */}
-        <div className="p-6">{children}</div>
+        {/* Content - Minimal padding for space efficiency (Requirement 18.4) */}
+        <div className="p-4 md:p-6 max-h-[calc(100vh-12rem)] overflow-y-auto">{children}</div>
       </div>
     </div>
   );

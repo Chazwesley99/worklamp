@@ -117,7 +117,7 @@ export function ProfileForm() {
       />
 
       {/* Email (Read-only) */}
-      <Input label="Email" type="email" value={user.email} disabled className="bg-gray-100" />
+      <Input label="Email" type="email" value={user.email} disabled />
 
       {/* Auth Provider Info */}
       <div className="text-sm text-gray-500">

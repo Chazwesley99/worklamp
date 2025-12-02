@@ -56,4 +56,58 @@
   body {
     @apply bg-background text-foreground;
   }
+  
+  /* Touch-friendly interactive elements (Requirement 18.5) */
+  @media (hover: none) and (pointer: coarse) {
+    button,
+    a,
+    input[type="button"],
+    input[type="submit"],
+    [role="button"] {
+      @apply min-h-touch min-w-touch;
+    }
+  }
+}
+
+@layer components {
+  /* Minimal spacing utilities (Requirement 18.4) */
+  .space-efficient {
+    @apply p-compact gap-compact;
+  }
+  
+  .space-minimal {
+    @apply p-tight gap-tight;
+  }
+  
+  /* Responsive container with minimal padding */
+  .container-minimal {
+    @apply container mx-auto px-compact md:px-4;
+  }
+  
+  /* Card with minimal spacing */
+  .card-minimal {
+    @apply bg-card text-card-foreground rounded-lg border p-compact;
+  }
+  
+  /* Form group with minimal spacing */
+  .form-group-minimal {
+    @apply space-y-tight;
+  }
+}
+
+@layer utilities {
+  /* Mobile-optimized touch targets (Requirement 18.5) */
+  .touch-target {
+    @apply min-h-touch min-w-touch;
+  }
+  
+  /* Responsive text sizing for mobile */
+  .text-responsive {
+    @apply text-sm md:text-base;
+  }
+  
+  /* Minimal click interactions (Requirement 18.6) */
+  .quick-action {
+    @apply cursor-pointer transition-colors duration-150 hover:bg-accent active:scale-95;
+  }
 }
