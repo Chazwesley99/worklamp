@@ -26,10 +26,10 @@ export const updateBugSchema = z.object({
   ownerId: z.string().uuid('Invalid owner ID').optional().nullable(),
 });
 
-export const voteBugSchema = z.object({
-  // No body needed for voting, but we validate the request
+export const assignBugSchema = z.object({
+  userIds: z.array(z.string().uuid('Invalid user ID')).min(1, 'At least one user must be assigned'),
 });
 
 export type CreateBugInput = z.infer<typeof createBugSchema>;
 export type UpdateBugInput = z.infer<typeof updateBugSchema>;
-export type VoteBugInput = z.infer<typeof voteBugSchema>;
+export type AssignBugInput = z.infer<typeof assignBugSchema>;

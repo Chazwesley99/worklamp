@@ -273,8 +273,8 @@
   - Connection status indicator
   - _Requirements: 20.1, 20.2, 20.3, 20.4, 20.5_
 
-- [ ] 10. Bug Tracking System
-- [ ] 10.1 Implement bug tracking API
+- [x] 10. Bug Tracking System
+- [x] 10.1 Implement bug tracking API
   - GET /api/projects/:projectId/bugs endpoint
   - POST /api/projects/:projectId/bugs endpoint with image upload
   - PATCH /api/bugs/:id endpoint
@@ -284,7 +284,7 @@
   - POST /api/bugs/:id/image endpoint
   - _Requirements: 11.1, 11.2, 11.3, 11.4, 11.5, 11.6, 11.7, 11.8, 11.9_
 
-- [ ] 10.2 Implement bug notification system
+- [x] 10.2 Implement bug notification system
   - Create notification service
   - Notify admins on new bug creation
   - GET /api/notifications endpoint
@@ -303,7 +303,7 @@
   - **Property 14: Vote count consistency**
   - **Validates: Requirements 11.5, 12.3**
 
-- [ ] 10.6 Create bug tracking UI
+- [x] 10.6 Create bug tracking UI
   - BugList component with priority sorting
   - BugForm modal with image upload and URL field
   - BugCard component with voting
@@ -334,6 +334,7 @@
   - FeatureRequestCard with voting
   - FeatureRequestForm modal
   - Public feature request view (if enabled)
+  - Add feature request into the dashboard page
   - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.5, 12.6_
 
 - [ ] 12. Milestone Management
@@ -364,6 +365,7 @@
   - Version lock interface
   - Change order tracking view
   - Display on dashboard (paid tier only)
+  - Integrate the milestone feature into the dashboard (paid tier only)
   - _Requirements: 8.1, 9.1, 9.2, 9.3, 9.4, 9.5, 9.6_
 
 - [ ] 13. Team Communication System

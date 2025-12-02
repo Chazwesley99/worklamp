@@ -5,7 +5,9 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { ProjectList } from '@/components/project/ProjectList';
 import { ProjectForm } from '@/components/project/ProjectForm';
 import { TaskList } from '@/components/task/TaskList';
+import { BugList } from '@/components/bug/BugList';
 import { type Task, taskApi } from '@/lib/api/task';
+import { type Bug, bugApi } from '@/lib/api/bug';
 import { useProject } from '@/lib/contexts/ProjectContext';
 import { useToast } from '@/lib/contexts/ToastContext';
 
@@ -13,13 +15,17 @@ export default function DashboardPage() {
   const [isProjectFormOpen, setIsProjectFormOpen] = useState(false);
   const { selectedProject, refreshProjects } = useProject();
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [bugs, setBugs] = useState<Bug[]>([]);
   const [isLoadingTasks, setIsLoadingTasks] = useState(false);
+  const [isLoadingBugs, setIsLoadingBugs] = useState(false);
+  const [activeTab, setActiveTab] = useState<'tasks' | 'bugs'>('tasks');
   const { showToast } = useToast();
 
-  // Load tasks when a project is selected
+  // Load tasks and bugs when a project is selected
   useEffect(() => {
     if (selectedProject) {
       loadTasks(selectedProject.id);
+      loadBugs(selectedProject.id);
     }
   }, [selectedProject]);
 
@@ -40,6 +46,23 @@ export default function DashboardPage() {
     }
   };
 
+  const loadBugs = async (projectId: string) => {
+    try {
+      setIsLoadingBugs(true);
+      const data = await bugApi.getBugs(projectId);
+      setBugs(data);
+    } catch (error) {
+      // Only show error toast if it's not a 404 (no bugs is expected for new projects)
+      const message = error instanceof Error ? error.message : 'Failed to load bugs';
+      if (!message.includes('404') && !message.includes('not found')) {
+        showToast(message, 'error');
+      }
+      setBugs([]);
+    } finally {
+      setIsLoadingBugs(false);
+    }
+  };
+
   const handleCreateProject = () => {
     setIsProjectFormOpen(true);
   };
@@ -54,6 +77,12 @@ export default function DashboardPage() {
     }
   };
 
+  const handleBugsChange = () => {
+    if (selectedProject) {
+      loadBugs(selectedProject.id);
+    }
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -64,20 +93,59 @@ export default function DashboardPage() {
           </p>
         </div>
 
-        {/* Tasks Section */}
+        {/* Project Content */}
         {selectedProject ? (
-          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-            {isLoadingTasks ? (
-              <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                Loading tasks...
-              </div>
-            ) : (
-              <TaskList
-                projectId={selectedProject.id}
-                tasks={tasks}
-                onTasksChange={handleTasksChange}
-              />
-            )}
+          <div className="space-y-4">
+            {/* Tabs */}
+            <div className="flex gap-2 border-b border-gray-200 dark:border-gray-700">
+              <button
+                onClick={() => setActiveTab('tasks')}
+                className={`px-4 py-2 font-medium transition-colors ${
+                  activeTab === 'tasks'
+                    ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                }`}
+              >
+                Tasks ({tasks.length})
+              </button>
+              <button
+                onClick={() => setActiveTab('bugs')}
+                className={`px-4 py-2 font-medium transition-colors ${
+                  activeTab === 'bugs'
+                    ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                }`}
+              >
+                Bugs ({bugs.length})
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+              {activeTab === 'tasks' ? (
+                isLoadingTasks ? (
+                  <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                    Loading tasks...
+                  </div>
+                ) : (
+                  <TaskList
+                    projectId={selectedProject.id}
+                    tasks={tasks}
+                    onTasksChange={handleTasksChange}
+                  />
+                )
+              ) : isLoadingBugs ? (
+                <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                  Loading bugs...
+                </div>
+              ) : (
+                <BugList
+                  projectId={selectedProject.id}
+                  bugs={bugs}
+                  onBugsChange={handleBugsChange}
+                />
+              )}
+            </div>
           </div>
         ) : (
           <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
