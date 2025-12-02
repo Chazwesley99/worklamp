@@ -9,6 +9,7 @@ import { useProject } from '@/lib/contexts/ProjectContext';
 interface SidebarProps {
   isOpen: boolean;
   onToggle: () => void;
+  onClose: () => void;
 }
 
 interface NavItem {
@@ -18,7 +19,7 @@ interface NavItem {
   showCondition?: () => boolean;
 }
 
-export function Sidebar({ isOpen, onToggle }: SidebarProps) {
+export function Sidebar({ isOpen, onToggle, onClose }: SidebarProps) {
   const pathname = usePathname();
   const { selectedProject } = useProject();
 
@@ -187,7 +188,7 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
         <div className="flex flex-col h-full">
           {/* Logo */}
           <div className="flex items-center justify-between px-6 py-3">
-            <Link href="/dashboard" className="flex items-center gap-2">
+            <Link href="/dashboard" onClick={onClose} className="flex items-center gap-2">
               <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-lg">W</span>
               </div>
@@ -224,6 +225,7 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
                 <Link
                   key={item.href}
                   href={item.href}
+                  onClick={onClose}
                   className={cn(
                     'flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors',
                     isActive
@@ -242,6 +244,7 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
           <div className="px-4 py-4">
             <Link
               href="/team"
+              onClick={onClose}
               className="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             >
               <svg
