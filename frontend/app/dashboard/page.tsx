@@ -29,8 +29,12 @@ export default function DashboardPage() {
       const data = await taskApi.getTasks(projectId);
       setTasks(data.tasks);
     } catch (error) {
+      // Only show error toast if it's not a 404 (no tasks is expected for new projects)
       const message = error instanceof Error ? error.message : 'Failed to load tasks';
-      showToast(message, 'error');
+      if (!message.includes('404') && !message.includes('not found')) {
+        showToast(message, 'error');
+      }
+      setTasks([]);
     } finally {
       setIsLoadingTasks(false);
     }

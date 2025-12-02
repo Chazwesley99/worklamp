@@ -109,6 +109,18 @@ function UserMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = React.useRef<HTMLDivElement>(null);
 
+  // Debug log to see what user data the menu receives
+  React.useEffect(() => {
+    if (user) {
+      console.log('[USER MENU DEBUG] User data:', {
+        id: user.id,
+        email: user.email,
+        avatarUrl: user.avatarUrl,
+        hasAvatar: !!user.avatarUrl,
+      });
+    }
+  }, [user]);
+
   // Close menu when clicking outside
   React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

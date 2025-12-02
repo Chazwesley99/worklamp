@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { type Project, projectApi } from '@/lib/api/project';
 import { useToast } from './ToastContext';
+import { useAuth } from './AuthContext';
 
 interface ProjectContextType {
   projects: Project[];
@@ -19,6 +20,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { showToast } = useToast();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
 
   const loadProjects = async () => {
     try {
@@ -36,16 +38,30 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
         setSelectedProject(data.projects[0] || null);
       }
     } catch (error) {
+      // Only show error toast if it's not a 404 (no projects found is expected for new users)
       const message = error instanceof Error ? error.message : 'Failed to load projects';
-      showToast(message, 'error');
+      if (!message.includes('404') && !message.includes('not found')) {
+        showToast(message, 'error');
+      }
+      // Set empty projects array on error
+      setProjects([]);
+      setSelectedProject(null);
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    loadProjects();
-  }, []);
+    // Only load projects when auth is ready and user is authenticated
+    if (!authLoading && isAuthenticated) {
+      loadProjects();
+    } else if (!authLoading && !isAuthenticated) {
+      // User is not authenticated, clear projects and stop loading
+      setProjects([]);
+      setSelectedProject(null);
+      setIsLoading(false);
+    }
+  }, [authLoading, isAuthenticated]);
 
   const refreshProjects = async () => {
     await loadProjects();

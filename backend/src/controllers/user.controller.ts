@@ -35,6 +35,13 @@ export class UserController {
         });
       }
 
+      console.log('[USER CONTROLLER DEBUG] Returning user to client:', {
+        userId: user.id,
+        email: user.email,
+        avatarUrl: user.avatarUrl,
+        hasAvatar: !!user.avatarUrl,
+      });
+
       res.json(user);
     } catch (error) {
       console.error('Error getting user profile:', error);

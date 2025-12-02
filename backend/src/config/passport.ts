@@ -22,6 +22,13 @@ passport.use(
         const name = profile.displayName || profile.name?.givenName || 'User';
         const avatarUrl = profile.photos?.[0]?.value;
 
+        console.log('[OAUTH DEBUG] Google profile data:', {
+          email,
+          name,
+          avatarUrl,
+          hasPhoto: !!profile.photos?.[0]?.value,
+        });
+
         if (!email) {
           return done(new Error('No email found in Google profile'), undefined);
         }
@@ -40,8 +47,11 @@ passport.use(
 
         if (user) {
           // User exists, update profile if needed
-          if (user.authProvider !== 'google') {
-            // User signed up with email but is now using Google OAuth
+          // Always update avatarUrl if provided by Google (it may have changed)
+          const shouldUpdate =
+            user.authProvider !== 'google' || (avatarUrl && user.avatarUrl !== avatarUrl);
+
+          if (shouldUpdate) {
             user = await prisma.user.update({
               where: { id: user.id },
               data: {
@@ -60,6 +70,7 @@ passport.use(
           }
         } else {
           // Create new user
+          console.log('[OAUTH DEBUG] Creating new user with avatarUrl:', avatarUrl);
           user = await prisma.user.create({
             data: {
               email,
@@ -77,6 +88,7 @@ passport.use(
               },
             },
           });
+          console.log('[OAUTH DEBUG] User created with avatarUrl:', user.avatarUrl);
 
           // Create tenant for the user
           const tenant = await prisma.tenant.create({
@@ -114,6 +126,7 @@ passport.use(
             return done(new Error('Failed to reload user after tenant creation'), undefined);
           }
 
+          console.log('[OAUTH DEBUG] Reloaded user avatarUrl:', reloadedUser.avatarUrl);
           user = reloadedUser;
         }
 

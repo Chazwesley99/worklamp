@@ -27,6 +27,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const loadUser = React.useCallback(async () => {
+    try {
+      const response = await authApi.getCurrentUser();
+      console.log('[AUTH CONTEXT DEBUG] User loaded:', {
+        id: response.id,
+        email: response.email,
+        avatarUrl: response.avatarUrl,
+        hasAvatar: !!response.avatarUrl,
+      });
+      setUser(response);
+    } catch (error) {
+      console.error('[AUTH CONTEXT DEBUG] Failed to load user:', error);
+      // User not authenticated or token expired
+      setUser(null);
+      setAccessToken(null);
+      localStorage.removeItem('accessToken');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
   // Load user and token on mount
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
@@ -36,21 +57,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } else {
       setIsLoading(false);
     }
-  }, []);
-
-  const loadUser = async () => {
-    try {
-      const response = await authApi.getCurrentUser();
-      setUser(response);
-    } catch (error) {
-      // User not authenticated or token expired
-      setUser(null);
-      setAccessToken(null);
-      localStorage.removeItem('accessToken');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  }, [loadUser]);
 
   const login = async (email: string, password: string) => {
     const response = await authApi.login({ email, password });
@@ -82,9 +89,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem('accessToken');
   };
 
-  const refreshUser = async () => {
+  const refreshUser = React.useCallback(async () => {
+    setIsLoading(true);
+    // Re-read token from localStorage in case it was just set
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      setAccessToken(token);
+    }
     await loadUser();
-  };
+  }, [loadUser]);
 
   return (
     <AuthContext.Provider

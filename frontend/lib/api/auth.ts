@@ -57,7 +57,14 @@ export const authApi = {
    * Get current user
    */
   async getCurrentUser(): Promise<User> {
-    return apiClient.get<User>('/api/users/me');
+    const user = await apiClient.get<User>('/api/users/me');
+    console.log('[AUTH API DEBUG] getCurrentUser response:', {
+      id: user.id,
+      email: user.email,
+      avatarUrl: user.avatarUrl,
+      hasAvatar: !!user.avatarUrl,
+    });
+    return user;
   },
 
   /**

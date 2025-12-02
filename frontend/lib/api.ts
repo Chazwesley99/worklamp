@@ -34,7 +34,19 @@ export class ApiClient {
     });
 
     if (!response.ok) {
-      const error: ApiError = await response.json();
+      let error: ApiError;
+      try {
+        error = await response.json();
+      } catch {
+        // If response is not JSON, create a generic error
+        error = {
+          error: {
+            code: 'NETWORK_ERROR',
+            message: `Request failed with status ${response.status}`,
+          },
+          statusCode: response.status,
+        };
+      }
       throw error;
     }
 

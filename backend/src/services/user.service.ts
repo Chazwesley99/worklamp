@@ -32,6 +32,12 @@ export class UserService {
       },
     });
 
+    console.log('[USER SERVICE DEBUG] getUserById result:', {
+      userId,
+      avatarUrl: user?.avatarUrl,
+      hasAvatar: !!user?.avatarUrl,
+    });
+
     return user;
   }
 
