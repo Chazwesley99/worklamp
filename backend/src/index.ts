@@ -99,8 +99,10 @@ app.use('/api', apiLimiter);
 // Serve static files from uploads directory (for local storage)
 app.use('/uploads', express.static('uploads'));
 
-// Routes
+// Routes - Order matters! More specific routes first
 app.use('/api/auth', authRoutes);
+app.use('/api/newsletter', newsletterRoutes); // Move before generic /api routes
+app.use('/api/contact', contactRoutes); // Move before generic /api routes
 app.use('/api/users', userRoutes);
 app.use('/api/tenants', tenantRoutes);
 app.use('/api/projects', projectRoutes);
@@ -111,8 +113,6 @@ app.use('/api', notificationRoutes);
 app.use('/api', milestoneRoutes);
 app.use('/api', channelRoutes);
 app.use('/api', envVarRoutes);
-app.use('/api/newsletter', newsletterRoutes);
-app.use('/api/contact', contactRoutes);
 
 // Health check endpoint
 app.get('/health', async (req, res) => {

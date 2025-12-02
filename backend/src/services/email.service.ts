@@ -65,7 +65,11 @@ export class EmailService {
     email: string;
   } {
     const secret = process.env.JWT_SECRET || 'your-secret-key';
-    const decoded = jwt.verify(token, secret) as any;
+    const decoded = jwt.verify(token, secret) as {
+      type: string;
+      userId: string;
+      email: string;
+    };
 
     if (decoded.type !== 'email_verification') {
       throw new Error('INVALID_TOKEN_TYPE');
@@ -103,7 +107,12 @@ export class EmailService {
     role: string;
   } {
     const secret = process.env.JWT_SECRET || 'your-secret-key';
-    const decoded = jwt.verify(token, secret) as any;
+    const decoded = jwt.verify(token, secret) as {
+      type: string;
+      tenantId: string;
+      email: string;
+      role: string;
+    };
 
     if (decoded.type !== 'invitation') {
       throw new Error('INVALID_TOKEN_TYPE');
@@ -247,6 +256,60 @@ export class EmailService {
   }
 
   /**
+   * Send welcome email to new newsletter subscriber
+   */
+  async sendWelcomeEmail(email: string, name: string, unsubscribeToken: string) {
+    const dashboardUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/dashboard`;
+    const unsubscribeLink = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/unsubscribe?token=${unsubscribeToken}`;
+
+    if (!this.transporter) {
+      console.log('=== WELCOME EMAIL ===');
+      console.log(`To: ${email}`);
+      console.log(`Name: ${name}`);
+      console.log(`Dashboard: ${dashboardUrl}`);
+      console.log(`Unsubscribe Link: ${unsubscribeLink}`);
+      console.log('=====================');
+      return;
+    }
+
+    const html = this.loadTemplate('welcome', {
+      name,
+      dashboardUrl,
+      unsubscribeLink,
+    });
+
+    const mailOptions = {
+      from: process.env.SMTP_FROM || 'noreply@worklamp.com',
+      to: email,
+      subject: 'Welcome to Worklamp! 🎉',
+      html,
+      text: `
+        Hi ${name},
+        
+        Thank you for subscribing to the Worklamp newsletter! We're excited to have you join our community of developers and project managers.
+        
+        You'll receive updates about:
+        • New features and improvements
+        • Tips and best practices for project management
+        • Developer productivity insights
+        • Exclusive early access to new releases
+        
+        Get Started: ${dashboardUrl}
+        
+        Worklamp is a project management platform built specifically for development teams. With features like real-time collaboration, bug tracking, milestone management, and team communication, we help you ship better software faster.
+        
+        Ready to streamline your workflow? Start with our free tier—no credit card required.
+        
+        ---
+        You're receiving this email because you subscribed to the Worklamp newsletter.
+        Unsubscribe: ${unsubscribeLink}
+      `,
+    };
+
+    await this.transporter.sendMail(mailOptions);
+  }
+
+  /**
    * Send contact form email to admin
    */
   async sendContactFormEmail(name: string, email: string, message: string) {
@@ -319,7 +382,11 @@ export class EmailService {
     email: string;
   } {
     const secret = process.env.JWT_SECRET || 'your-secret-key';
-    const decoded = jwt.verify(token, secret) as any;
+    const decoded = jwt.verify(token, secret) as {
+      type: string;
+      userId: string;
+      email: string;
+    };
 
     if (decoded.type !== 'unsubscribe') {
       throw new Error('INVALID_TOKEN_TYPE');

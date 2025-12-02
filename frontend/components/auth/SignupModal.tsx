@@ -7,6 +7,7 @@ import { Checkbox } from '@/components/ui/Checkbox';
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/lib/contexts/AuthContext';
 import { authApi } from '@/lib/api/auth';
+import { useRouter } from 'next/navigation';
 
 interface SignupModalProps {
   isOpen: boolean;
@@ -16,6 +17,7 @@ interface SignupModalProps {
 
 export function SignupModal({ isOpen, onClose, onSwitchToLogin }: SignupModalProps) {
   const { signup } = useAuth();
+  const router = useRouter();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -83,6 +85,8 @@ export function SignupModal({ isOpen, onClose, onSwitchToLogin }: SignupModalPro
         agreeToTerms: false,
         agreeToEmails: false,
       });
+      // Redirect to dashboard
+      router.push('/dashboard');
     } catch (err: unknown) {
       const apiError = err as { error?: { message?: string } };
       setErrors({ general: apiError.error?.message || 'Signup failed. Please try again.' });
@@ -148,12 +152,33 @@ export function SignupModal({ isOpen, onClose, onSwitchToLogin }: SignupModalPro
         />
 
         <div className="space-y-2">
-          <Checkbox
-            label="I agree to the Terms and Conditions and Privacy Policy"
-            checked={formData.agreeToTerms}
-            onChange={(e) => setFormData({ ...formData, agreeToTerms: e.target.checked })}
-            disabled={isLoading}
-          />
+          <div className="flex items-start gap-2">
+            <Checkbox
+              checked={formData.agreeToTerms}
+              onChange={(e) => setFormData({ ...formData, agreeToTerms: e.target.checked })}
+              disabled={isLoading}
+            />
+            <label className="text-sm text-gray-700 dark:text-gray-300">
+              I agree to the{' '}
+              <a
+                href="/terms"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 dark:text-blue-400 hover:underline"
+              >
+                Terms and Conditions
+              </a>{' '}
+              and{' '}
+              <a
+                href="/privacy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 dark:text-blue-400 hover:underline"
+              >
+                Privacy Policy
+              </a>
+            </label>
+          </div>
           {errors.agreeToTerms && (
             <p className="text-sm text-red-600 dark:text-red-400">{errors.agreeToTerms}</p>
           )}

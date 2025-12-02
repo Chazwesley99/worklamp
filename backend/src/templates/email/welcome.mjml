@@ -1,0 +1,73 @@
+<mjml>
+  <mj-head>
+    <mj-title>Welcome to Worklamp!</mj-title>
+    <mj-attributes>
+      <mj-all font-family="Arial, sans-serif" />
+      <mj-text font-size="14px" color="#333333" line-height="20px" />
+      <mj-section padding="20px" />
+    </mj-attributes>
+  </mj-head>
+  <mj-body background-color="#f4f4f4">
+    <mj-section background-color="#ffffff" border-radius="8px">
+      <mj-column>
+        <!-- Logo/Header -->
+        <mj-text font-size="32px" font-weight="bold" color="#2563eb" align="center" padding-bottom="10px">
+          Worklamp
+        </mj-text>
+        
+        <!-- Welcome Message -->
+        <mj-text font-size="24px" font-weight="bold" color="#1a1a1a" padding-bottom="20px" align="center">
+          Welcome to Worklamp! 🎉
+        </mj-text>
+        
+        <mj-text padding-bottom="15px">
+          Hi {{name}},
+        </mj-text>
+        
+        <mj-text padding-bottom="15px">
+          Thank you for subscribing to the Worklamp newsletter! We're excited to have you join our community of developers and project managers.
+        </mj-text>
+        
+        <mj-text padding-bottom="15px">
+          You'll receive updates about:
+        </mj-text>
+        
+        <mj-text padding-left="20px" padding-bottom="5px">
+          • New features and improvements
+        </mj-text>
+        <mj-text padding-left="20px" padding-bottom="5px">
+          • Tips and best practices for project management
+        </mj-text>
+        <mj-text padding-left="20px" padding-bottom="5px">
+          • Developer productivity insights
+        </mj-text>
+        <mj-text padding-left="20px" padding-bottom="20px">
+          • Exclusive early access to new releases
+        </mj-text>
+        
+        <!-- CTA Button -->
+        <mj-button background-color="#2563eb" color="#ffffff" href="{{dashboardUrl}}" padding="20px 0">
+          Get Started with Worklamp
+        </mj-button>
+        
+        <mj-text padding-top="20px" padding-bottom="15px">
+          Worklamp is a project management platform built specifically for development teams. With features like real-time collaboration, bug tracking, milestone management, and team communication, we help you ship better software faster.
+        </mj-text>
+        
+        <mj-text padding-bottom="15px">
+          Ready to streamline your workflow? Start with our free tier—no credit card required.
+        </mj-text>
+        
+        <mj-divider border-color="#e0e0e0" padding="30px 0" />
+        
+        <!-- Footer -->
+        <mj-text color="#999999" font-size="11px" align="center">
+          You're receiving this email because you subscribed to the Worklamp newsletter.
+        </mj-text>
+        <mj:parameter name="text" color="#999999" font-size="11px" align="center">
+          <a href="{{unsubscribeLink}}" style="color: #4F46E5; text-decoration: none;">Unsubscribe</a>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

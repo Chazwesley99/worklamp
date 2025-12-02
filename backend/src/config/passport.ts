@@ -68,6 +68,47 @@ passport.use(
               },
             });
           }
+
+          // Check if user has a tenant (newsletter-only users won't have one)
+          if (!user.tenantMemberships || user.tenantMemberships.length === 0) {
+            console.log('[OAUTH DEBUG] User exists but has no tenant, creating one...');
+
+            // Create tenant for the user
+            const tenant = await prisma.tenant.create({
+              data: {
+                name: `${user.name}'s Workspace`,
+                ownerId: user.id,
+                subscriptionTier: 'free',
+                maxProjects: 1,
+                maxTeamMembers: 1,
+              },
+            });
+
+            // Add user as tenant member with owner role
+            await prisma.tenantMember.create({
+              data: {
+                tenantId: tenant.id,
+                userId: user.id,
+                role: 'owner',
+              },
+            });
+
+            // Reload user with tenant memberships
+            const reloadedUser = await prisma.user.findUnique({
+              where: { id: user.id },
+              include: {
+                tenantMemberships: {
+                  include: {
+                    tenant: true,
+                  },
+                },
+              },
+            });
+
+            if (reloadedUser) {
+              user = reloadedUser;
+            }
+          }
         } else {
           // Create new user
           console.log('[OAUTH DEBUG] Creating new user with avatarUrl:', avatarUrl);

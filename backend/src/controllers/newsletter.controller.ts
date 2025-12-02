@@ -25,6 +25,7 @@ export class NewsletterController {
    */
   async subscribe(req: Request, res: Response) {
     try {
+      console.log('Newsletter subscribe endpoint hit:', req.body);
       const { email, name } = subscribeSchema.parse(req.body);
 
       // Check if user exists
@@ -32,13 +33,17 @@ export class NewsletterController {
         where: { email },
       });
 
+      const isNewSubscriber = !user;
+
       if (user) {
+        console.log('Updating existing user:', email);
         // Update existing user to opt in
         await prisma.user.update({
           where: { id: user.id },
           data: { emailOptIn: true },
         });
       } else {
+        console.log('Creating new newsletter subscriber:', email);
         // Create a newsletter-only user record
         user = await prisma.user.create({
           data: {
@@ -51,11 +56,25 @@ export class NewsletterController {
         });
       }
 
+      // Send welcome email to new subscribers
+      if (isNewSubscriber) {
+        try {
+          const unsubscribeToken = emailService.generateUnsubscribeToken(user.id, user.email);
+          await emailService.sendWelcomeEmail(user.email, user.name, unsubscribeToken);
+          console.log('Welcome email sent to:', email);
+        } catch (emailError) {
+          console.error('Failed to send welcome email:', emailError);
+          // Don't fail the subscription if email fails
+        }
+      }
+
+      console.log('Newsletter subscription successful');
       res.json({
         message: 'Successfully subscribed to newsletter',
       });
     } catch (error) {
       if (error instanceof z.ZodError) {
+        console.error('Newsletter validation error:', error.errors);
         return res.status(400).json({
           error: {
             code: 'VALIDATION_FAILED',

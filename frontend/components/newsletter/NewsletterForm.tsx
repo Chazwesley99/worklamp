@@ -23,7 +23,8 @@ export function NewsletterForm() {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ email, name }),
+          credentials: 'omit', // Don't send cookies/auth
+          body: JSON.stringify({ email, name: name || undefined }),
         }
       );
 

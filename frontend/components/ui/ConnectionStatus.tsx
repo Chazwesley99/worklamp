@@ -1,10 +1,21 @@
 'use client';
 
 import React from 'react';
+import { usePathname } from 'next/navigation';
 import { useSocket } from '@/lib/contexts/SocketContext';
 
 export function ConnectionStatus() {
   const { connectionStatus, isConnected } = useSocket();
+  const pathname = usePathname();
+
+  // Marketing pages where we should hide the connection status
+  const marketingPages = ['/', '/pricing', '/about', '/privacy', '/terms'];
+  const isMarketingPage = marketingPages.includes(pathname);
+
+  // Don't show on marketing pages
+  if (isMarketingPage) {
+    return null;
+  }
 
   // Don't show anything when connected (normal state)
   if (isConnected) {

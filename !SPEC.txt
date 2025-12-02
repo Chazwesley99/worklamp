@@ -26,6 +26,7 @@ Be the expert that you are in development, software architecture, software devel
 - Assign invited users to which Team projects they can see
 - Export Tasks, Bugs, Requests for documentation
 - Add "My Assigned Tasks/Bugs" - mark as new if the item has not been viewed yet.
+- Option to turn off notifications per user
 
 
 

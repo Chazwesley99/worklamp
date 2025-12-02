@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
@@ -15,6 +16,7 @@ interface LoginModalProps {
 
 export function LoginModal({ isOpen, onClose, onSwitchToSignup }: LoginModalProps) {
   const { login } = useAuth();
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -31,6 +33,8 @@ export function LoginModal({ isOpen, onClose, onSwitchToSignup }: LoginModalProp
       // Reset form
       setEmail('');
       setPassword('');
+      // Redirect to dashboard
+      router.push('/dashboard');
     } catch (err: unknown) {
       const apiError = err as { error?: { message?: string } };
       setError(apiError.error?.message || 'Login failed. Please check your credentials.');

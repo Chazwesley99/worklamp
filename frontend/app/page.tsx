@@ -1,236 +1,156 @@
 'use client';
 
-import Link from 'next/link';
 import { useState } from 'react';
-import { useAuth } from '@/lib/contexts/AuthContext';
-import { LoginModal } from '@/components/auth/LoginModal';
+import Link from 'next/link';
+import { MarketingLayout } from '@/components/layout/MarketingLayout';
 import { SignupModal } from '@/components/auth/SignupModal';
+import { LoginModal } from '@/components/auth/LoginModal';
 import { Button } from '@/components/ui/Button';
 
 export default function Home() {
-  const { isAuthenticated, user, logout } = useAuth();
-  const [showLogin, setShowLogin] = useState(false);
   const [showSignup, setShowSignup] = useState(false);
-  return (
-    <main className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      {/* Header */}
-      <header className="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl">W</span>
-              </div>
-              <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">Worklamp</span>
-            </div>
-            <nav className="flex items-center gap-4">
-              {isAuthenticated ? (
-                <>
-                  <Link
-                    href="/dashboard"
-                    className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100"
-                  >
-                    Dashboard
-                  </Link>
-                  <Link
-                    href="/profile"
-                    className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100"
-                  >
-                    Profile
-                  </Link>
-                  <Link
-                    href="/team"
-                    className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100"
-                  >
-                    Team
-                  </Link>
-                  <div className="flex items-center gap-2 px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-md">
-                    <span className="text-sm text-gray-700 dark:text-gray-300">{user?.name}</span>
-                  </div>
-                  <Button variant="outline" size="sm" onClick={() => logout()}>
-                    Logout
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Button variant="ghost" size="sm" onClick={() => setShowLogin(true)}>
-                    Login
-                  </Button>
-                  <Button size="sm" onClick={() => setShowSignup(true)}>
-                    Sign Up
-                  </Button>
-                </>
-              )}
-            </nav>
-          </div>
-        </div>
-      </header>
+  const [showLogin, setShowLogin] = useState(false);
 
+  return (
+    <MarketingLayout>
       {/* Hero Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
         <div className="text-center">
-          <h1 className="text-5xl font-bold text-gray-900 dark:text-gray-100 mb-6">Worklamp</h1>
-          <p className="text-2xl text-gray-600 dark:text-gray-400 mb-12">
-            Project Management Platform for Development Teams
+          <h1 className="text-4xl md:text-6xl font-bold text-gray-900 dark:text-gray-100 mb-6">
+            Project Management Built for Developers
+          </h1>
+          <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-400 mb-8 max-w-3xl mx-auto">
+            Streamline your development workflow with task tracking, bug management, team
+            collaboration, and real-time updates—all in one place.
           </p>
 
-          <div className="flex justify-center gap-4 mb-16">
+          <div className="flex flex-col sm:flex-row justify-center gap-4 mb-16">
+            <Button size="lg" onClick={() => setShowSignup(true)} className="px-8 py-3">
+              Get Started Free
+            </Button>
             <Link
-              href="/dashboard"
-              className="px-8 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+              href="/pricing"
+              className="px-8 py-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600 rounded-lg font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-center"
             >
-              Go to Dashboard
-            </Link>
-            <Link
-              href="/projects"
-              className="px-8 py-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600 rounded-lg font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-            >
-              View Projects
+              View Pricing
             </Link>
           </div>
         </div>
 
-        {/* Features Grid */}
+        {/* Key Features */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mt-16">
           <FeatureCard
-            title="Project Management"
-            description="Create and manage multiple projects with team collaboration"
-            icon="📁"
-            href="/projects"
-            status="Available"
-          />
-          <FeatureCard
-            title="User Profiles"
-            description="Manage your profile, avatar, and account settings"
-            icon="👤"
-            href="/profile"
-            status="Available"
-          />
-          <FeatureCard
-            title="Team Management"
-            description="Invite team members and manage roles and permissions"
-            icon="👥"
-            href="/team"
-            status="Available"
-          />
-          <FeatureCard
             title="Task Management"
-            description="Track tasks with categories, priorities, and assignments"
+            description="Organize work with categories, priorities, and milestone tracking. Keep your team aligned on what matters most."
             icon="✓"
-            href="/tasks"
-            status="Coming Soon"
           />
           <FeatureCard
             title="Bug Tracking"
-            description="Report and track bugs with images and voting"
+            description="Report bugs with screenshots, track progress, and enable public voting to prioritize fixes."
             icon="🐛"
-            href="/bugs"
-            status="Coming Soon"
           />
           <FeatureCard
             title="Feature Requests"
-            description="Collect and prioritize feature requests from your team"
+            description="Collect ideas from your team and users. Vote on features to build what matters most."
             icon="💡"
-            href="/features"
-            status="Coming Soon"
+          />
+          <FeatureCard
+            title="Team Collaboration"
+            description="Real-time chat channels with permission controls. Keep conversations organized by project."
+            icon="💬"
+          />
+          <FeatureCard
+            title="Milestone Timeline"
+            description="Visualize project phases with timeline views. Lock versions and track change orders."
+            icon="📅"
+          />
+          <FeatureCard
+            title="Real-Time Updates"
+            description="See changes instantly without refreshing. Stay in sync with your team automatically."
+            icon="⚡"
           />
         </div>
 
-        {/* Current Implementation Status */}
-        <div className="mt-20 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-8">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-            ✅ Currently Implemented Features
+        {/* Benefits Section */}
+        <div className="mt-24 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-8 md:p-12">
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-8 text-center">
+            Why Development Teams Choose Worklamp
           </h2>
-          <div className="space-y-3 text-gray-700 dark:text-gray-300">
-            <div className="flex items-start gap-3">
-              <span className="text-green-600 dark:text-green-400 font-bold">✓</span>
+          <div className="grid md:grid-cols-2 gap-8">
+            <div className="flex gap-4">
+              <div className="flex-shrink-0 w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                <span className="text-2xl">🔒</span>
+              </div>
               <div>
-                <strong>Authentication System:</strong> Email/password and Google OAuth login
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                  Self-Hosted Security
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400">
+                  All services run on your infrastructure. Your data stays under your control with
+                  local authentication and optional cloud storage.
+                </p>
               </div>
             </div>
-            <div className="flex items-start gap-3">
-              <span className="text-green-600 dark:text-green-400 font-bold">✓</span>
+            <div className="flex gap-4">
+              <div className="flex-shrink-0 w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
+                <span className="text-2xl">⚡</span>
+              </div>
               <div>
-                <strong>User Profile Management:</strong> Update profile, change password, upload
-                avatar
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                  Real-Time Collaboration
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400">
+                  See updates instantly as your team works. No more refreshing pages or missing
+                  important changes.
+                </p>
               </div>
             </div>
-            <div className="flex items-start gap-3">
-              <span className="text-green-600 dark:text-green-400 font-bold">✓</span>
+            <div className="flex gap-4">
+              <div className="flex-shrink-0 w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
+                <span className="text-2xl">👥</span>
+              </div>
               <div>
-                <strong>Tenant & Team Management:</strong> Create tenants, invite members, manage
-                roles
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                  Role-Based Access
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400">
+                  Granular permissions for owners, admins, developers, and auditors. Control who
+                  sees what.
+                </p>
               </div>
             </div>
-            <div className="flex items-start gap-3">
-              <span className="text-green-600 dark:text-green-400 font-bold">✓</span>
+            <div className="flex gap-4">
+              <div className="flex-shrink-0 w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
+                <span className="text-2xl">🎯</span>
+              </div>
               <div>
-                <strong>Project Management:</strong> Full CRUD operations, project settings,
-                subscription limits
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                  Developer-Focused
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400">
+                  Built by developers, for developers. Minimal clicks, keyboard shortcuts, and
+                  efficient workflows.
+                </p>
               </div>
             </div>
-            <div className="flex items-start gap-3">
-              <span className="text-green-600 dark:text-green-400 font-bold">✓</span>
-              <div>
-                <strong>Dashboard Layout:</strong> Sidebar navigation, notification bell, responsive
-                design
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-3">
-              🚧 In Development
-            </h3>
-            <p className="text-gray-600 dark:text-gray-400">
-              Tasks, Bugs, Features, Milestones, Team Chat, and more coming soon...
-            </p>
           </div>
         </div>
 
-        {/* Quick Links */}
-        <div className="mt-12 text-center">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-            Quick Access
-          </h3>
-          <div className="flex flex-wrap justify-center gap-3">
-            <Link
-              href="/dashboard"
-              className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-            >
-              Dashboard
-            </Link>
-            <Link
-              href="/projects"
-              className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-            >
-              Projects
-            </Link>
-            <Link
-              href="/profile"
-              className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-            >
-              Profile
-            </Link>
-            <Link
-              href="/team"
-              className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-            >
-              Team
-            </Link>
-          </div>
+        {/* CTA Section */}
+        <div className="mt-24 text-center">
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+            Ready to streamline your workflow?
+          </h2>
+          <p className="text-xl text-gray-600 dark:text-gray-400 mb-8">
+            Start with our free tier. No credit card required.
+          </p>
+          <Button size="lg" onClick={() => setShowSignup(true)} className="px-8 py-3">
+            Get Started Free
+          </Button>
         </div>
       </div>
 
       {/* Auth Modals */}
-      <LoginModal
-        isOpen={showLogin}
-        onClose={() => setShowLogin(false)}
-        onSwitchToSignup={() => {
-          setShowLogin(false);
-          setShowSignup(true);
-        }}
-      />
       <SignupModal
         isOpen={showSignup}
         onClose={() => setShowSignup(false)}
@@ -239,7 +159,15 @@ export default function Home() {
           setShowLogin(true);
         }}
       />
-    </main>
+      <LoginModal
+        isOpen={showLogin}
+        onClose={() => setShowLogin(false)}
+        onSwitchToSignup={() => {
+          setShowLogin(false);
+          setShowSignup(true);
+        }}
+      />
+    </MarketingLayout>
   );
 }
 
@@ -247,34 +175,14 @@ interface FeatureCardProps {
   title: string;
   description: string;
   icon: string;
-  href: string;
-  status: 'Available' | 'Coming Soon';
 }
 
-function FeatureCard({ title, description, icon, href, status }: FeatureCardProps) {
-  const isAvailable = status === 'Available';
-
+function FeatureCard({ title, description, icon }: FeatureCardProps) {
   return (
-    <Link
-      href={isAvailable ? href : '#'}
-      className={`block p-6 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 transition-all ${
-        isAvailable
-          ? 'hover:shadow-lg hover:border-blue-500 dark:hover:border-blue-400 cursor-pointer'
-          : 'opacity-60 cursor-not-allowed'
-      }`}
-    >
-      <div className="text-4xl mb-3">{icon}</div>
-      <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">{title}</h3>
-      <p className="text-gray-600 dark:text-gray-400 mb-3">{description}</p>
-      <span
-        className={`inline-block px-3 py-1 text-xs font-semibold rounded-full ${
-          isAvailable
-            ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-            : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-400'
-        }`}
-      >
-        {status}
-      </span>
-    </Link>
+    <div className="p-6 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+      <div className="text-4xl mb-4">{icon}</div>
+      <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3">{title}</h3>
+      <p className="text-gray-600 dark:text-gray-400">{description}</p>
+    </div>
   );
 }

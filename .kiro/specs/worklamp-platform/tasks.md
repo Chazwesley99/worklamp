@@ -505,21 +505,22 @@
   - Ensure mobile responsiveness
   - _Requirements: 18.4, 18.5, 18.6_
 
-- [ ] 20. Marketing Site
-- [ ] 20.1 Create marketing site pages
+- [x] 20. Marketing Site
+- [x] 20.1 Create marketing site pages
   - Home page with feature highlights
   - Pricing page with tier comparison
   - About page with contact form
   - Responsive layouts for all pages
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 2.1, 2.2, 2.3, 2.4, 2.5, 4.1, 4.2, 4.3, 4.4_
 
-- [ ] 20.2 Implement footer with newsletter and social links
+- [x] 20.2 Implement footer with newsletter and social links
   - Newsletter subscription form
   - Social media links (X, Instagram, YouTube)
-  - Footer component across all pages
+  - Footer component across all pages including links to privacy policy and terms and conditions
+  - Create canned static terms and conditions and privacy pages based on this project
   - _Requirements: 4.5, 4.6_
 
-- [ ] 20.3 Build contact form functionality
+- [x] 20.3 Build contact form functionality
   - Contact form with validation
   - Email submission to ADMIN_EMAIL
   - Success/error feedback
