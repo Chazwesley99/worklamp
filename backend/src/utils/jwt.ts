@@ -4,7 +4,7 @@ import { redisClient } from '../config/redis';
 const JWT_SECRET = process.env.JWT_SECRET || 'default-jwt-secret-change-in-production';
 const JWT_REFRESH_SECRET =
   process.env.JWT_REFRESH_SECRET || 'default-refresh-secret-change-in-production';
-const ACCESS_TOKEN_EXPIRY = '15m'; // 15 minutes
+const ACCESS_TOKEN_EXPIRY = '7d'; // 7 days - automatically renewed with activity
 const REFRESH_TOKEN_EXPIRY = '30d'; // 30 days
 
 export interface TokenPayload {

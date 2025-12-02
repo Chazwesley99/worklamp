@@ -13,9 +13,47 @@ export interface ApiError {
 
 export class ApiClient {
   private baseUrl: string;
+  private isRefreshing = false;
+  private refreshPromise: Promise<string> | null = null;
 
   constructor(baseUrl: string = API_BASE_URL) {
     this.baseUrl = baseUrl;
+  }
+
+  private async refreshAccessToken(): Promise<string> {
+    // If already refreshing, return the existing promise
+    if (this.isRefreshing && this.refreshPromise) {
+      return this.refreshPromise;
+    }
+
+    this.isRefreshing = true;
+    this.refreshPromise = (async () => {
+      try {
+        const response = await fetch(`${this.baseUrl}/api/auth/refresh`, {
+          method: 'POST',
+          credentials: 'include', // Include refresh token cookie
+        });
+
+        if (!response.ok) {
+          throw new Error('Token refresh failed');
+        }
+
+        const data = await response.json();
+        const newAccessToken = data.accessToken;
+
+        // Store new access token
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('accessToken', newAccessToken);
+        }
+
+        return newAccessToken;
+      } finally {
+        this.isRefreshing = false;
+        this.refreshPromise = null;
+      }
+    })();
+
+    return this.refreshPromise;
   }
 
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
@@ -24,14 +62,35 @@ export class ApiClient {
     // Get access token from localStorage
     const accessToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
 
-    const response = await fetch(url, {
-      ...options,
-      credentials: 'include', // Include cookies for authentication
-      headers: {
-        ...options.headers,
-        ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
-      },
-    });
+    const makeRequest = async (token: string | null) => {
+      return fetch(url, {
+        ...options,
+        credentials: 'include', // Include cookies for authentication
+        headers: {
+          ...options.headers,
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
+      });
+    };
+
+    let response = await makeRequest(accessToken);
+
+    // If unauthorized and not already on auth endpoint, try to refresh token
+    if (response.status === 401 && !endpoint.includes('/api/auth/')) {
+      try {
+        // Attempt to refresh the token
+        const newAccessToken = await this.refreshAccessToken();
+        // Retry the request with new token
+        response = await makeRequest(newAccessToken);
+      } catch (refreshError) {
+        // If refresh fails, redirect to login
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('accessToken');
+          window.location.href = '/';
+        }
+        throw refreshError;
+      }
+    }
 
     if (!response.ok) {
       let error: ApiError;
