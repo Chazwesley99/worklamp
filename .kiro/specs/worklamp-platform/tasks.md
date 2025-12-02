@@ -202,8 +202,8 @@
   - Notification bell component
   - _Requirements: 8.1, 8.2, 8.3, 8.7, 8.8_
 
-- [ ] 7. Task Management System
-- [ ] 7.1 Implement task API endpoints
+- [x] 7. Task Management System
+- [x] 7.1 Implement task API endpoints
   - GET /api/projects/:projectId/tasks endpoint
   - POST /api/projects/:projectId/tasks endpoint
   - PATCH /api/tasks/:id endpoint
@@ -224,7 +224,7 @@
   - **Property 12: Unassigned task display**
   - **Validates: Requirements 10.5**
 
-- [ ] 7.5 Create task management UI components
+- [x] 7.5 Create task management UI components
   - TaskList component with sorting and filtering
   - TaskCard component with quick actions
   - TaskForm modal for create/edit
@@ -233,7 +233,7 @@
   - Priority ordering drag-and-drop
   - _Requirements: 8.2, 10.1, 10.2, 10.3, 10.4, 10.5, 10.6_
 
-- [ ] 7.6 Implement comments system
+- [x] 7.6 Implement comments system
   - Comment model for tasks, bugs, features, milestones
   - Comment API endpoints
   - Comment UI component with real-time updates

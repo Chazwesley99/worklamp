@@ -3,6 +3,7 @@ import './globals.css';
 import { QueryProvider } from '@/lib/providers/QueryProvider';
 import { AuthProvider } from '@/lib/contexts/AuthContext';
 import { ToastProvider } from '@/lib/contexts/ToastContext';
+import { ProjectProvider } from '@/lib/contexts/ProjectContext';
 
 export const metadata: Metadata = {
   title: 'Worklamp - Project Management for Developers',
@@ -15,7 +16,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <QueryProvider>
           <AuthProvider>
-            <ToastProvider>{children}</ToastProvider>
+            <ToastProvider>
+              <ProjectProvider>{children}</ProjectProvider>
+            </ToastProvider>
           </AuthProvider>
         </QueryProvider>
       </body>

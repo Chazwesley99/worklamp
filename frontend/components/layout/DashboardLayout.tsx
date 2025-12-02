@@ -4,11 +4,11 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/lib/contexts/AuthContext';
+import { useProject } from '@/lib/contexts/ProjectContext';
 import { tenantApi } from '@/lib/api/tenant';
 import { ProjectSelector } from '@/components/project/ProjectSelector';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
 import { Sidebar } from '@/components/layout/Sidebar';
-import { type Project } from '@/lib/api/project';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -17,8 +17,8 @@ interface DashboardLayoutProps {
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const router = useRouter();
   const { isAuthenticated, isLoading } = useAuth();
+  const { selectedProject, setSelectedProject } = useProject();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   const { data: tenant } = useQuery({
     queryKey: ['tenant'],
@@ -55,8 +55,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
-        <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4">
-          <div className="flex items-center justify-between">
+        <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-0.5 flex items-center">
+          <div className="flex items-center justify-between w-full">
             <div className="flex items-center gap-4">
               {/* Mobile menu button */}
               <button
@@ -77,12 +77,13 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               </button>
 
               {/* Project Selector (Paid tier only) */}
-              {isPaidTier && (
-                <ProjectSelector
-                  selectedProjectId={selectedProject?.id}
-                  onSelectProject={setSelectedProject}
-                />
-              )}
+              {isPaidTier ||
+                (!isPaidTier && (
+                  <ProjectSelector
+                    selectedProjectId={selectedProject?.id}
+                    onSelectProject={setSelectedProject}
+                  />
+                ))}
             </div>
 
             <div className="flex items-center gap-4">

@@ -2,21 +2,17 @@
 
 import React, { useState, useEffect } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
-import { ProjectList } from '@/components/project/ProjectList';
-import { ProjectForm } from '@/components/project/ProjectForm';
 import { TaskList } from '@/components/task/TaskList';
 import { type Task, taskApi } from '@/lib/api/task';
 import { useProject } from '@/lib/contexts/ProjectContext';
 import { useToast } from '@/lib/contexts/ToastContext';
 
-export default function DashboardPage() {
-  const [isProjectFormOpen, setIsProjectFormOpen] = useState(false);
-  const { selectedProject, refreshProjects } = useProject();
+export default function TasksPage() {
+  const { selectedProject, projects, isLoading: projectsLoading } = useProject();
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [isLoadingTasks, setIsLoadingTasks] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const { showToast } = useToast();
 
-  // Load tasks when a project is selected
   useEffect(() => {
     if (selectedProject) {
       loadTasks(selectedProject.id);
@@ -25,23 +21,15 @@ export default function DashboardPage() {
 
   const loadTasks = async (projectId: string) => {
     try {
-      setIsLoadingTasks(true);
+      setIsLoading(true);
       const data = await taskApi.getTasks(projectId);
       setTasks(data.tasks);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to load tasks';
       showToast(message, 'error');
     } finally {
-      setIsLoadingTasks(false);
+      setIsLoading(false);
     }
-  };
-
-  const handleCreateProject = () => {
-    setIsProjectFormOpen(true);
-  };
-
-  const handleEditProject = () => {
-    setIsProjectFormOpen(true);
   };
 
   const handleTasksChange = () => {
@@ -50,20 +38,56 @@ export default function DashboardPage() {
     }
   };
 
+  if (projectsLoading) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-gray-500 dark:text-gray-400">Loading...</div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (projects.length === 0) {
+    return (
+      <DashboardLayout>
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Tasks</h1>
+            <p className="text-gray-600 dark:text-gray-400 mt-1">
+              Manage your tasks across all projects
+            </p>
+          </div>
+          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-12 text-center">
+            <p className="text-gray-500 dark:text-gray-400 mb-4">
+              No projects found. Create a project first to start managing tasks.
+            </p>
+            <a
+              href="/projects"
+              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            >
+              Go to Projects
+            </a>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Dashboard</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Tasks</h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
-            Welcome back! Manage your projects and tasks.
+            Manage your tasks across all projects
           </p>
         </div>
 
         {/* Tasks Section */}
-        {selectedProject ? (
+        {selectedProject && (
           <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-            {isLoadingTasks ? (
+            {isLoading ? (
               <div className="text-center py-8 text-gray-500 dark:text-gray-400">
                 Loading tasks...
               </div>
@@ -75,20 +99,7 @@ export default function DashboardPage() {
               />
             )}
           </div>
-        ) : (
-          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-            <ProjectList onCreateProject={handleCreateProject} onEditProject={handleEditProject} />
-          </div>
         )}
-
-        <ProjectForm
-          isOpen={isProjectFormOpen}
-          onClose={() => {
-            setIsProjectFormOpen(false);
-            refreshProjects();
-          }}
-          project={null}
-        />
       </div>
     </DashboardLayout>
   );
