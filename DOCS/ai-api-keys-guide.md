@@ -108,11 +108,16 @@ Google's Gemini models (including Gemini Pro) are available through Google AI St
 ### Pricing Information
 
 - Google Gemini offers a generous free tier:
-  - **Gemini Pro**: 60 requests per minute (free)
-  - **Gemini Pro Vision**: 60 requests per minute (free)
+  - **Gemini 2.5 Flash**: 10 requests per minute (free tier) - Recommended
+  - **Gemini 2.5 Flash-Lite**: 15 requests per minute (free tier) - Faster, lighter
+  - **Gemini 1.5 Flash**: 15 requests per minute (free tier)
+  - **Gemini 1.5 Pro**: 2 requests per minute (free tier)
+- Worklamp uses **Gemini 2.5 Flash** by default for optimal performance with the latest AI capabilities
 - Paid tier available for higher usage
-- Monitor usage in Google Cloud Console
+- Monitor usage in Google AI Studio
 - Check current pricing: [https://ai.google.dev/pricing](https://ai.google.dev/pricing)
+
+**Note:** Worklamp uses the latest `@google/genai` SDK with the `gemini-2.5-flash` model.
 
 ### Troubleshooting
 
@@ -123,7 +128,7 @@ Google's Gemini models (including Gemini Pro) are available through Google AI St
 
 **Issue:** "Quota exceeded" error
 
-- **Solution:** You've hit the free tier limit (60 requests/minute). Wait a minute or upgrade to paid tier
+- **Solution:** You've hit the free tier limit (10 requests/minute for Gemini 2.5 Flash, or 15 requests/minute for Gemini 2.5 Flash-Lite). Wait a minute or upgrade to paid tier
 
 **Issue:** "Region not supported" error
 

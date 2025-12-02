@@ -7,6 +7,7 @@ import { Input } from '../ui/Input';
 import { Textarea } from '../ui/Textarea';
 import { Select } from '../ui/Select';
 import { Button } from '../ui/Button';
+import { AIAssistantPanel } from '../ai/AIAssistantPanel';
 
 interface FeatureRequestFormProps {
   isOpen: boolean;
@@ -33,6 +34,7 @@ export default function FeatureRequestForm({
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showAI, setShowAI] = useState(false);
 
   useEffect(() => {
     if (feature) {
@@ -129,6 +131,39 @@ export default function FeatureRequestForm({
           rows={6}
           placeholder="Describe the request in detail"
         />
+
+        {/* AI Assistant Toggle */}
+        {formData.title && formData.description && (
+          <div>
+            <button
+              type="button"
+              onClick={() => setShowAI(!showAI)}
+              className="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
+            >
+              <svg
+                className={`w-4 h-4 transition-transform ${showAI ? 'rotate-90' : ''}`}
+                fill="none"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path d="M9 5l7 7-7 7" />
+              </svg>
+              {showAI ? 'Hide' : 'Show'} AI Assistant
+            </button>
+            {showAI && (
+              <div className="mt-3">
+                <AIAssistantPanel
+                  type="feature"
+                  title={formData.title}
+                  description={formData.description}
+                />
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="grid grid-cols-2 gap-4">
           <Input

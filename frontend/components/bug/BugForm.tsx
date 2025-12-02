@@ -7,6 +7,7 @@ import { Input } from '../ui/Input';
 import { Textarea } from '../ui/Textarea';
 import { Select } from '../ui/Select';
 import { Button } from '../ui/Button';
+import { AIAssistantPanel } from '../ai/AIAssistantPanel';
 
 interface BugFormProps {
   isOpen: boolean;
@@ -31,6 +32,7 @@ export function BugForm({ isOpen, onClose, onSubmit, bug, teamMembers = [] }: Bu
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showAI, setShowAI] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -147,6 +149,41 @@ export function BugForm({ isOpen, onClose, onSubmit, bug, teamMembers = [] }: Bu
           placeholder="Detailed description of the bug, steps to reproduce, expected vs actual behavior"
           rows={4}
         />
+
+        {/* AI Assistant Toggle */}
+        {formData.title && formData.description && (
+          <div>
+            <button
+              type="button"
+              onClick={() => setShowAI(!showAI)}
+              className="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
+            >
+              <svg
+                className={`w-4 h-4 transition-transform ${showAI ? 'rotate-90' : ''}`}
+                fill="none"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path d="M9 5l7 7-7 7" />
+              </svg>
+              {showAI ? 'Hide' : 'Show'} AI Assistant
+            </button>
+            {showAI && (
+              <div className="mt-3">
+                <AIAssistantPanel
+                  type="bug"
+                  title={formData.title}
+                  description={formData.description}
+                  url={formData.url || undefined}
+                  imageUrl={imagePreview || undefined}
+                />
+              </div>
+            )}
+          </div>
+        )}
 
         <Input
           label="URL (optional)"

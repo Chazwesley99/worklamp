@@ -3,6 +3,7 @@
 import { Bug } from '@/lib/api/bug';
 import { useState } from 'react';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
+import { AIAssistantPanel } from '../ai/AIAssistantPanel';
 
 interface BugCardProps {
   bug: Bug;
@@ -25,6 +26,7 @@ export function BugCard({
 }: BugCardProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showAI, setShowAI] = useState(false);
 
   const handleDeleteClick = () => {
     setShowDeleteConfirm(true);
@@ -158,6 +160,14 @@ export function BugCard({
             </select>
 
             <button
+              onClick={() => setShowAI(!showAI)}
+              className="p-1 text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400"
+              title="AI Assistant"
+            >
+              🤖
+            </button>
+
+            <button
               onClick={() => onEdit(bug)}
               className="p-1 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400"
               title="Edit bug"
@@ -176,6 +186,19 @@ export function BugCard({
           </div>
         )}
       </div>
+
+      {/* AI Assistant Panel */}
+      {showAI && !isPublicView && (
+        <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+          <AIAssistantPanel
+            type="bug"
+            title={bug.title}
+            description={bug.description}
+            url={bug.url || undefined}
+            imageUrl={bug.imageUrl || undefined}
+          />
+        </div>
+      )}
 
       <ConfirmDialog
         isOpen={showDeleteConfirm}

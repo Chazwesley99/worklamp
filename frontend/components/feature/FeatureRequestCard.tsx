@@ -5,6 +5,7 @@ import { FeatureRequest } from '@/lib/api/feature';
 import { useAuth } from '@/lib/contexts/AuthContext';
 import { useToast } from '@/lib/contexts/ToastContext';
 import { Button } from '../ui/Button';
+import { AIAssistantPanel } from '../ai/AIAssistantPanel';
 
 interface FeatureRequestCardProps {
   feature: FeatureRequest;
@@ -25,6 +26,7 @@ export default function FeatureRequestCard({
   const { showToast } = useToast();
   const [isDeleting, setIsDeleting] = useState(false);
   const [isVoting, setIsVoting] = useState(false);
+  const [showAI, setShowAI] = useState(false);
 
   const handleVote = async () => {
     if (isVoting) return;
@@ -149,6 +151,9 @@ export default function FeatureRequestCard({
           {/* Actions */}
           {!isPublicView && user && (
             <div className="flex items-center gap-2">
+              <Button variant="secondary" size="sm" onClick={() => setShowAI(!showAI)}>
+                🤖 {showAI ? 'Hide' : 'Show'} AI
+              </Button>
               {onEdit && (
                 <Button variant="secondary" size="sm" onClick={() => onEdit(feature)}>
                   Edit
@@ -163,6 +168,17 @@ export default function FeatureRequestCard({
           )}
         </div>
       </div>
+
+      {/* AI Assistant Panel */}
+      {showAI && !isPublicView && (
+        <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+          <AIAssistantPanel
+            type="feature"
+            title={feature.title}
+            description={feature.description}
+          />
+        </div>
+      )}
     </div>
   );
 }

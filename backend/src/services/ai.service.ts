@@ -1,5 +1,5 @@
 import OpenAI from 'openai';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenAI } from '@google/genai';
 import { aiConfigService } from './aiconfig.service';
 
 export interface AnalyzeBugInput {
@@ -80,15 +80,15 @@ Bug Description: ${input.description}`;
       let result: AnalyzeBugResult;
 
       if (provider === 'openai') {
-        result = await this.callOpenAI(tenantId, prompt);
+        result = await this.callOpenAI<AnalyzeBugResult>(tenantId, prompt);
       } else if (provider === 'google') {
-        result = await this.callGoogleAI(tenantId, prompt);
+        result = await this.callGoogleAI<AnalyzeBugResult>(tenantId, prompt);
       } else {
         throw new Error('UNSUPPORTED_AI_PROVIDER');
       }
 
       return result;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('AI bug analysis error:', error);
       throw error;
     }
@@ -136,15 +136,15 @@ Format your response as JSON with the following structure:
       let result: GenerateFeatureSpecResult;
 
       if (provider === 'openai') {
-        result = await this.callOpenAI(tenantId, prompt);
+        result = await this.callOpenAI<GenerateFeatureSpecResult>(tenantId, prompt);
       } else if (provider === 'google') {
-        result = await this.callGoogleAI(tenantId, prompt);
+        result = await this.callGoogleAI<GenerateFeatureSpecResult>(tenantId, prompt);
       } else {
         throw new Error('UNSUPPORTED_AI_PROVIDER');
       }
 
       return result;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('AI feature spec generation error:', error);
       throw error;
     }
@@ -192,15 +192,15 @@ Format your response as JSON with the following structure:
       let result: GeneratePromptResult;
 
       if (provider === 'openai') {
-        result = await this.callOpenAI(tenantId, prompt);
+        result = await this.callOpenAI<GeneratePromptResult>(tenantId, prompt);
       } else if (provider === 'google') {
-        result = await this.callGoogleAI(tenantId, prompt);
+        result = await this.callGoogleAI<GeneratePromptResult>(tenantId, prompt);
       } else {
         throw new Error('UNSUPPORTED_AI_PROVIDER');
       }
 
       return result;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('AI prompt generation error:', error);
       throw error;
     }
@@ -209,7 +209,7 @@ Format your response as JSON with the following structure:
   /**
    * Call OpenAI API
    */
-  private async callOpenAI(tenantId: string, prompt: string): Promise<any> {
+  private async callOpenAI<T>(tenantId: string, prompt: string): Promise<T> {
     try {
       const apiKey = await aiConfigService.getAPIKey(tenantId, 'openai');
 
@@ -241,12 +241,13 @@ Format your response as JSON with the following structure:
         throw new Error('NO_RESPONSE_FROM_AI');
       }
 
-      return JSON.parse(content);
-    } catch (error: any) {
+      return JSON.parse(content) as T;
+    } catch (error: unknown) {
       console.error('OpenAI API error:', error);
+      const err = error as Error;
       if (
-        error.message === 'AI_NOT_CONFIGURED' ||
-        error.message === 'PLATFORM_API_KEY_NOT_CONFIGURED'
+        err.message === 'AI_NOT_CONFIGURED' ||
+        err.message === 'PLATFORM_API_KEY_NOT_CONFIGURED'
       ) {
         throw error;
       }
@@ -257,20 +258,44 @@ Format your response as JSON with the following structure:
   /**
    * Call Google AI API
    */
-  private async callGoogleAI(tenantId: string, prompt: string): Promise<any> {
+  private async callGoogleAI<T>(tenantId: string, prompt: string): Promise<T> {
     try {
       const apiKey = await aiConfigService.getAPIKey(tenantId, 'google');
 
-      const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+      const ai = new GoogleGenAI({ apiKey });
 
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      const text = response.text();
+      console.log('Calling Google AI with model: gemini-2.5-flash');
+
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: prompt,
+      });
+
+      console.log('Google AI response received:', response);
+      console.log('Response type:', typeof response);
+      console.log('Response keys:', Object.keys(response));
+
+      // Try different ways to get the text
+      let text: string | undefined;
+
+      // Try accessing as property/getter first
+      try {
+        text = response.text;
+      } catch (e) {
+        console.log('Could not access response.text:', e);
+      }
+
+      // Fallback to candidates structure
+      if (!text && response.candidates?.[0]?.content?.parts?.[0]?.text) {
+        text = response.candidates[0].content.parts[0].text;
+      }
 
       if (!text) {
+        console.error('No text in response. Full response:', JSON.stringify(response, null, 2));
         throw new Error('NO_RESPONSE_FROM_AI');
       }
+
+      console.log('Response text length:', text.length);
 
       // Try to extract JSON from the response
       // Google AI might wrap JSON in markdown code blocks
@@ -281,12 +306,27 @@ Format your response as JSON with the following structure:
         jsonText = jsonText.replace(/```\n?/g, '');
       }
 
-      return JSON.parse(jsonText);
-    } catch (error: any) {
+      return JSON.parse(jsonText) as T;
+    } catch (error: unknown) {
       console.error('Google AI API error:', error);
+      const err = error as Error & { status?: number; statusText?: string };
+      console.error('Error details:', {
+        status: err.status,
+        statusText: err.statusText,
+        message: err.message,
+        stack: err.stack,
+      });
+
+      // Log the full error object to understand the structure
+      try {
+        console.error('Full error object:', JSON.stringify(error, null, 2));
+      } catch {
+        console.error('Could not stringify error object');
+      }
+
       if (
-        error.message === 'AI_NOT_CONFIGURED' ||
-        error.message === 'PLATFORM_API_KEY_NOT_CONFIGURED'
+        err.message === 'AI_NOT_CONFIGURED' ||
+        err.message === 'PLATFORM_API_KEY_NOT_CONFIGURED'
       ) {
         throw error;
       }

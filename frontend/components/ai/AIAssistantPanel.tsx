@@ -64,9 +64,15 @@ export function AIAssistantPanel({
         context: type === 'bug' ? url : undefined,
       });
 
-      // Copy to clipboard
-      await navigator.clipboard.writeText(result.prompt);
-      showToast('AI agent prompt copied to clipboard', 'success');
+      // Copy to clipboard - handle focus issues
+      try {
+        await navigator.clipboard.writeText(result.prompt);
+        showToast('AI agent prompt copied to clipboard', 'success');
+      } catch (clipboardError) {
+        // Fallback if clipboard fails due to focus issues
+        console.warn('Clipboard write failed, prompt is available in the panel');
+        showToast('Prompt generated successfully', 'success');
+      }
     } catch (error: unknown) {
       console.error('Prompt generation error:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to generate prompt';
