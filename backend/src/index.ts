@@ -20,6 +20,8 @@ import notificationRoutes from './routes/notification.routes';
 import milestoneRoutes from './routes/milestone.routes';
 import channelRoutes from './routes/channel.routes';
 import envVarRoutes from './routes/envvar.routes';
+import newsletterRoutes from './routes/newsletter.routes';
+import contactRoutes from './routes/contact.routes';
 
 dotenv.config();
 
@@ -109,6 +111,8 @@ app.use('/api', notificationRoutes);
 app.use('/api', milestoneRoutes);
 app.use('/api', channelRoutes);
 app.use('/api', envVarRoutes);
+app.use('/api/newsletter', newsletterRoutes);
+app.use('/api/contact', contactRoutes);
 
 // Health check endpoint
 app.get('/health', async (req, res) => {

@@ -1,0 +1,34 @@
+<mjml>
+  <mj-head>
+    <mj-title>Verify your email address</mj-title>
+    <mj-attributes>
+      <mj-all font-family="Arial, sans-serif" />
+      <mj-text font-size="14px" color="#333333" line-height="20px" />
+      <mj-section padding="20px" />
+    </mj-attributes>
+  </mj-head>
+  <mj-body background-color="#f4f4f4">
+    <mj-section background-color="#ffffff" border-radius="8px">
+      <mj-column>
+        <mj-text font-size="24px" font-weight="bold" color="#1a1a1a" padding-bottom="20px">
+          Verify your email address
+        </mj-text>
+        <mj-text>
+          Thank you for signing up for Worklamp! Please verify your email address by clicking the button below:
+        </mj-text>
+        <mj-button background-color="#4F46E5" color="#ffffff" border-radius="6px" padding="20px 0" href="{{verificationLink}}">
+          Verify Email
+        </mj-button>
+        <mj-text color="#666666" font-size="12px" padding-top="20px">
+          Or copy and paste this link into your browser:
+        </mj-text>
+        <mj-text color="#666666" font-size="12px" word-break="break-all">
+          {{verificationLink}}
+        </mj-text>
+        <mj-text color="#999999" font-size="11px" padding-top="40px">
+          This verification link will expire in 24 hours.
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

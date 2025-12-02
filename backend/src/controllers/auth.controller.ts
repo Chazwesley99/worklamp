@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { authService } from '../services/auth.service';
+import { emailService } from '../services/email.service';
 import { signupSchema, loginSchema, verifyEmailSchema } from '../validators/auth.validator';
 
 export class AuthController {
@@ -15,13 +16,12 @@ export class AuthController {
       // Create user
       const { user, verificationToken } = await authService.signup(validatedData);
 
-      // TODO: Send verification email with token
-      // For now, return token in response (in production, only send via email)
+      // Send verification email
+      await emailService.sendVerificationEmail(user.email, verificationToken);
 
       res.status(201).json({
-        message: 'User registered successfully. Please verify your email.',
+        message: 'User registered successfully. Please check your email to verify your account.',
         user,
-        verificationToken, // Remove this in production
       });
     } catch (error) {
       if (error instanceof Error) {

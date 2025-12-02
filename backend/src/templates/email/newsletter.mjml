@@ -1,0 +1,29 @@
+<mjml>
+  <mj-head>
+    <mj-title>{{subject}}</mj-title>
+    <mj-attributes>
+      <mj-all font-family="Arial, sans-serif" />
+      <mj-text font-size="14px" color="#333333" line-height="20px" />
+      <mj-section padding="20px" />
+    </mj-attributes>
+  </mj-head>
+  <mj-body background-color="#f4f4f4">
+    <mj-section background-color="#ffffff" border-radius="8px">
+      <mj-column>
+        <mj-text font-size="24px" font-weight="bold" color="#1a1a1a" padding-bottom="20px">
+          {{title}}
+        </mj-text>
+        <mj-text>
+          {{content}}
+        </mj-text>
+        <mj-divider border-color="#e0e0e0" padding="30px 0" />
+        <mj-text color="#999999" font-size="11px" align="center">
+          You're receiving this email because you opted in to receive communications from Worklamp.
+        </mj-text>
+        <mj-text color="#999999" font-size="11px" align="center">
+          <a href="{{unsubscribeLink}}" style="color: #4F46E5; text-decoration: none;">Unsubscribe</a>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

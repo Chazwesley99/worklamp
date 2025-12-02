@@ -1,5 +1,8 @@
 import nodemailer from 'nodemailer';
 import jwt from 'jsonwebtoken';
+import mjml2html from 'mjml';
+import fs from 'fs';
+import path from 'path';
 
 export class EmailService {
   private transporter: nodemailer.Transporter | null = null;
@@ -19,6 +22,59 @@ export class EmailService {
           : undefined,
       });
     }
+  }
+
+  /**
+   * Load and compile MJML template
+   */
+  private loadTemplate(templateName: string, variables: Record<string, string>): string {
+    const templatePath = path.join(__dirname, '../templates/email', `${templateName}.mjml`);
+    let mjmlContent = fs.readFileSync(templatePath, 'utf-8');
+
+    // Replace variables in template
+    Object.keys(variables).forEach((key) => {
+      const regex = new RegExp(`{{${key}}}`, 'g');
+      mjmlContent = mjmlContent.replace(regex, variables[key]);
+    });
+
+    const { html } = mjml2html(mjmlContent);
+    return html;
+  }
+
+  /**
+   * Generate email verification token
+   */
+  generateVerificationToken(userId: string, email: string): string {
+    const secret = process.env.JWT_SECRET || 'your-secret-key';
+    return jwt.sign(
+      {
+        type: 'email_verification',
+        userId,
+        email,
+      },
+      secret,
+      { expiresIn: '24h' } // Verification valid for 24 hours
+    );
+  }
+
+  /**
+   * Verify email verification token
+   */
+  verifyVerificationToken(token: string): {
+    userId: string;
+    email: string;
+  } {
+    const secret = process.env.JWT_SECRET || 'your-secret-key';
+    const decoded = jwt.verify(token, secret) as any;
+
+    if (decoded.type !== 'email_verification') {
+      throw new Error('INVALID_TOKEN_TYPE');
+    }
+
+    return {
+      userId: decoded.userId,
+      email: decoded.email,
+    };
   }
 
   /**
@@ -69,9 +125,10 @@ export class EmailService {
     tenantName: string,
     invitationToken: string
   ) {
+    const invitationLink = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/invite?token=${invitationToken}`;
+
     if (!this.transporter) {
       // If no SMTP configured, just log the invitation link
-      const invitationLink = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/invite?token=${invitationToken}`;
       console.log('=== INVITATION EMAIL ===');
       console.log(`To: ${email}`);
       console.log(`From: ${inviterName}`);
@@ -81,27 +138,17 @@ export class EmailService {
       return;
     }
 
-    const invitationLink = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/invite?token=${invitationToken}`;
+    const html = this.loadTemplate('invitation', {
+      tenantName,
+      inviterName,
+      invitationLink,
+    });
 
     const mailOptions = {
       from: process.env.SMTP_FROM || 'noreply@worklamp.com',
       to: email,
       subject: `You've been invited to join ${tenantName} on Worklamp`,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2>You've been invited to join ${tenantName}</h2>
-          <p>${inviterName} has invited you to join their team on Worklamp.</p>
-          <p>Click the button below to accept the invitation:</p>
-          <a href="${invitationLink}" style="display: inline-block; padding: 12px 24px; background-color: #4F46E5; color: white; text-decoration: none; border-radius: 6px; margin: 20px 0;">
-            Accept Invitation
-          </a>
-          <p>Or copy and paste this link into your browser:</p>
-          <p style="color: #666; word-break: break-all;">${invitationLink}</p>
-          <p style="color: #999; font-size: 12px; margin-top: 40px;">
-            This invitation will expire in 7 days.
-          </p>
-        </div>
-      `,
+      html,
       text: `
         You've been invited to join ${tenantName}
         
@@ -121,9 +168,10 @@ export class EmailService {
    * Send email verification email
    */
   async sendVerificationEmail(email: string, verificationToken: string) {
+    const verificationLink = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/verify-email?token=${verificationToken}`;
+
     if (!this.transporter) {
       // If no SMTP configured, just log the verification link
-      const verificationLink = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/verify-email?token=${verificationToken}`;
       console.log('=== VERIFICATION EMAIL ===');
       console.log(`To: ${email}`);
       console.log(`Verification Link: ${verificationLink}`);
@@ -131,23 +179,15 @@ export class EmailService {
       return;
     }
 
-    const verificationLink = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/verify-email?token=${verificationToken}`;
+    const html = this.loadTemplate('verification', {
+      verificationLink,
+    });
 
     const mailOptions = {
       from: process.env.SMTP_FROM || 'noreply@worklamp.com',
       to: email,
       subject: 'Verify your email address',
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2>Verify your email address</h2>
-          <p>Thank you for signing up for Worklamp! Please verify your email address by clicking the button below:</p>
-          <a href="${verificationLink}" style="display: inline-block; padding: 12px 24px; background-color: #4F46E5; color: white; text-decoration: none; border-radius: 6px; margin: 20px 0;">
-            Verify Email
-          </a>
-          <p>Or copy and paste this link into your browser:</p>
-          <p style="color: #666; word-break: break-all;">${verificationLink}</p>
-        </div>
-      `,
+      html,
       text: `
         Verify your email address
         
@@ -157,6 +197,138 @@ export class EmailService {
     };
 
     await this.transporter.sendMail(mailOptions);
+  }
+
+  /**
+   * Send newsletter email
+   */
+  async sendNewsletterEmail(
+    email: string,
+    subject: string,
+    title: string,
+    content: string,
+    unsubscribeToken: string
+  ) {
+    const unsubscribeLink = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/unsubscribe?token=${unsubscribeToken}`;
+
+    if (!this.transporter) {
+      console.log('=== NEWSLETTER EMAIL ===');
+      console.log(`To: ${email}`);
+      console.log(`Subject: ${subject}`);
+      console.log(`Unsubscribe Link: ${unsubscribeLink}`);
+      console.log('========================');
+      return;
+    }
+
+    const html = this.loadTemplate('newsletter', {
+      subject,
+      title,
+      content,
+      unsubscribeLink,
+    });
+
+    const mailOptions = {
+      from: process.env.SMTP_FROM || 'noreply@worklamp.com',
+      to: email,
+      subject,
+      html,
+      text: `
+        ${title}
+        
+        ${content}
+        
+        ---
+        You're receiving this email because you opted in to receive communications from Worklamp.
+        Unsubscribe: ${unsubscribeLink}
+      `,
+    };
+
+    await this.transporter.sendMail(mailOptions);
+  }
+
+  /**
+   * Send contact form email to admin
+   */
+  async sendContactFormEmail(name: string, email: string, message: string) {
+    const adminEmail = process.env.ADMIN_EMAIL;
+
+    if (!adminEmail) {
+      console.log('=== CONTACT FORM SUBMISSION ===');
+      console.log(`From: ${name} (${email})`);
+      console.log(`Message: ${message}`);
+      console.log('================================');
+      return;
+    }
+
+    if (!this.transporter) {
+      console.log('=== CONTACT FORM EMAIL ===');
+      console.log(`To: ${adminEmail}`);
+      console.log(`From: ${name} (${email})`);
+      console.log(`Message: ${message}`);
+      console.log('==========================');
+      return;
+    }
+
+    const html = this.loadTemplate('contact', {
+      name,
+      email,
+      message,
+    });
+
+    const mailOptions = {
+      from: process.env.SMTP_FROM || 'noreply@worklamp.com',
+      to: adminEmail,
+      replyTo: email,
+      subject: `Contact Form Submission from ${name}`,
+      html,
+      text: `
+        New Contact Form Submission
+        
+        From: ${name}
+        Email: ${email}
+        
+        Message:
+        ${message}
+      `,
+    };
+
+    await this.transporter.sendMail(mailOptions);
+  }
+
+  /**
+   * Generate unsubscribe token
+   */
+  generateUnsubscribeToken(userId: string, email: string): string {
+    const secret = process.env.JWT_SECRET || 'your-secret-key';
+    return jwt.sign(
+      {
+        type: 'unsubscribe',
+        userId,
+        email,
+      },
+      secret,
+      { expiresIn: '90d' } // Long-lived token for unsubscribe
+    );
+  }
+
+  /**
+   * Verify unsubscribe token
+   */
+  verifyUnsubscribeToken(token: string): {
+    userId: string;
+    email: string;
+  } {
+    const secret = process.env.JWT_SECRET || 'your-secret-key';
+    const decoded = jwt.verify(token, secret) as any;
+
+    if (decoded.type !== 'unsubscribe') {
+      throw new Error('INVALID_TOKEN_TYPE');
+    }
+
+    return {
+      userId: decoded.userId,
+      email: decoded.email,
+    };
   }
 }
 

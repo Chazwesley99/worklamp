@@ -1,0 +1,32 @@
+<mjml>
+  <mj-head>
+    <mj-title>New Contact Form Submission</mj-title>
+    <mj-attributes>
+      <mj-all font-family="Arial, sans-serif" />
+      <mj-text font-size="14px" color="#333333" line-height="20px" />
+      <mj-section padding="20px" />
+    </mj-attributes>
+  </mj-head>
+  <mj-body background-color="#f4f4f4">
+    <mj-section background-color="#ffffff" border-radius="8px">
+      <mj-column>
+        <mj-text font-size="24px" font-weight="bold" color="#1a1a1a" padding-bottom="20px">
+          New Contact Form Submission
+        </mj-text>
+        <mj-text font-weight="bold">
+          From: {{name}}
+        </mj-text>
+        <mj-text>
+          Email: {{email}}
+        </mj-text>
+        <mj-divider border-color="#e0e0e0" padding="20px 0" />
+        <mj-text font-weight="bold" padding-bottom="10px">
+          Message:
+        </mj-text>
+        <mj-text>
+          {{message}}
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
