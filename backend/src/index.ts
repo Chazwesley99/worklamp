@@ -1,4 +1,5 @@
 import express from 'express';
+import { createServer } from 'http';
 import cors from 'cors';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
@@ -7,6 +8,7 @@ import passport from './config/passport';
 import { prisma } from './config/database';
 import { connectRedis, disconnectRedis } from './config/redis';
 import { apiLimiter } from './middleware/ratelimit.middleware';
+import { initializeSocketServer } from './websocket/socket';
 import authRoutes from './routes/auth.routes';
 import userRoutes from './routes/user.routes';
 import tenantRoutes from './routes/tenant.routes';
@@ -20,6 +22,7 @@ import milestoneRoutes from './routes/milestone.routes';
 dotenv.config();
 
 const app = express();
+const httpServer = createServer(app);
 const PORT = process.env.PORT || 3001;
 
 // Security headers with Helmet
@@ -148,8 +151,13 @@ async function startServer() {
     await prisma.$connect();
     console.log('Database connected successfully');
 
-    app.listen(PORT, () => {
+    // Initialize Socket.io server
+    await initializeSocketServer(httpServer);
+    console.log('Socket.io server initialized');
+
+    httpServer.listen(PORT, () => {
       console.log(`Backend server running on port ${PORT}`);
+      console.log(`WebSocket server ready for connections`);
     });
   } catch (error) {
     console.error('Failed to start server:', error);

@@ -77,13 +77,12 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               </button>
 
               {/* Project Selector (Paid tier only) */}
-              {isPaidTier ||
-                (!isPaidTier && (
-                  <ProjectSelector
-                    selectedProjectId={selectedProject?.id}
-                    onSelectProject={setSelectedProject}
-                  />
-                ))}
+              {isPaidTier && (
+                <ProjectSelector
+                  selectedProjectId={selectedProject?.id}
+                  onSelectProject={setSelectedProject}
+                />
+              )}
             </div>
 
             <div className="flex items-center gap-4">

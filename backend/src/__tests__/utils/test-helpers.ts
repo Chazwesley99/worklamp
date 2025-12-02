@@ -1,11 +1,27 @@
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
+// SAFETY CHECK: Ensure we're using a test database
+if (!process.env.DATABASE_URL_TEST) {
+  console.error('❌ ERROR: DATABASE_URL_TEST is not set!');
+  console.error('Tests must use a separate test database to avoid data loss.');
+  console.error('Please set DATABASE_URL_TEST in your .env file.');
+  console.error('Example: DATABASE_URL_TEST=postgresql://user:pass@localhost:5432/worklamp_test');
+  throw new Error('DATABASE_URL_TEST environment variable is required for tests');
+}
+
+// Verify the test database URL is different from production/development
+if (process.env.DATABASE_URL_TEST === process.env.DATABASE_URL) {
+  console.error('❌ ERROR: DATABASE_URL_TEST cannot be the same as DATABASE_URL!');
+  console.error('Tests must use a separate database to avoid data loss.');
+  throw new Error('DATABASE_URL_TEST must be different from DATABASE_URL');
+}
+
 // Test database client
 export const testPrisma = new PrismaClient({
   datasources: {
     db: {
-      url: process.env.DATABASE_URL_TEST || process.env.DATABASE_URL,
+      url: process.env.DATABASE_URL_TEST,
     },
   },
 });

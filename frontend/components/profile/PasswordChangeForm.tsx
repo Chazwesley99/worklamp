@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useUser, useChangePassword } from '@/lib/hooks/useUser';
+import { useToast } from '@/lib/contexts/ToastContext';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Lock } from 'lucide-react';
@@ -9,6 +10,7 @@ import { Lock } from 'lucide-react';
 export function PasswordChangeForm() {
   const { data: user } = useUser();
   const changePassword = useChangePassword();
+  const { showSuccess, showError } = useToast();
 
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -62,13 +64,13 @@ export function PasswordChangeForm() {
       setConfirmPassword('');
       setErrors({});
 
-      alert('Password changed successfully!');
+      showSuccess('Password changed successfully!');
     } catch (error) {
       const apiError = error as { error?: { code?: string; message?: string } };
       if (apiError?.error?.code === 'INVALID_PASSWORD') {
         setErrors({ currentPassword: 'Current password is incorrect' });
       } else {
-        alert(apiError?.error?.message || 'Failed to change password');
+        showError(apiError?.error?.message || 'Failed to change password');
       }
     }
   };
