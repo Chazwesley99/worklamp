@@ -22,26 +22,56 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   const { showToast } = useToast();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
 
+  // Load selected project ID from localStorage on mount
+  useEffect(() => {
+    const savedProjectId = localStorage.getItem('selectedProjectId');
+    if (savedProjectId) {
+      // We'll set the actual project object once projects are loaded
+      console.log('[ProjectContext] Found saved project ID:', savedProjectId);
+    }
+  }, []);
+
+  // Save selected project ID to localStorage whenever it changes
+  useEffect(() => {
+    if (selectedProject) {
+      localStorage.setItem('selectedProjectId', selectedProject.id);
+      console.log('[ProjectContext] Saved project ID to localStorage:', selectedProject.id);
+    }
+  }, [selectedProject]);
+
   const loadProjects = async () => {
     try {
       setIsLoading(true);
       const data = await projectApi.getProjects();
       setProjects(data.projects);
 
-      // Auto-select first project if none selected
-      if (data.projects.length > 0 && !selectedProject) {
-        setSelectedProject(data.projects[0]);
+      // Try to restore previously selected project from localStorage
+      const savedProjectId = localStorage.getItem('selectedProjectId');
+      let projectToSelect: Project | null = null;
+
+      if (savedProjectId) {
+        // Try to find the saved project
+        projectToSelect = data.projects.find((p) => p.id === savedProjectId) || null;
+        console.log(
+          '[ProjectContext] Attempting to restore project:',
+          savedProjectId,
+          'Found:',
+          !!projectToSelect
+        );
       }
 
-      // If selected project exists, update it with fresh data
-      if (selectedProject) {
-        const updatedSelectedProject = data.projects.find((p) => p.id === selectedProject.id);
-        if (updatedSelectedProject) {
-          setSelectedProject(updatedSelectedProject);
-        } else {
-          // If selected project no longer exists, select first available
-          setSelectedProject(data.projects[0] || null);
-        }
+      // If no saved project or saved project not found, use first project
+      if (!projectToSelect && data.projects.length > 0) {
+        projectToSelect = data.projects[0];
+        console.log('[ProjectContext] No saved project, selecting first:', projectToSelect.id);
+      }
+
+      // Only update if we have a project to select and it's different from current
+      if (projectToSelect && (!selectedProject || selectedProject.id !== projectToSelect.id)) {
+        setSelectedProject(projectToSelect);
+      } else if (projectToSelect && selectedProject && selectedProject.id === projectToSelect.id) {
+        // Update with fresh data but keep the same project
+        setSelectedProject(projectToSelect);
       }
     } catch (error) {
       // Only show error toast if it's not a 404 (no projects found is expected for new users)

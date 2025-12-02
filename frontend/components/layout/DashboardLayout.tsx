@@ -108,6 +108,11 @@ function UserMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = React.useRef<HTMLDivElement>(null);
 
+  const handleMenuItemClick = (href: string) => {
+    setIsOpen(false);
+    router.push(href);
+  };
+
   // Debug log to see what user data the menu receives
   React.useEffect(() => {
     if (user) {
@@ -167,18 +172,24 @@ function UserMenu() {
             <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{user?.name}</p>
             <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user?.email}</p>
           </div>
-          <a
-            href="/profile"
-            className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+          <button
+            onClick={() => handleMenuItemClick('/profile')}
+            className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
           >
             Profile
-          </a>
-          <a
-            href="/team"
-            className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+          </button>
+          <button
+            onClick={() => handleMenuItemClick('/profile/my-vars')}
+            className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+          >
+            My Vars
+          </button>
+          <button
+            onClick={() => handleMenuItemClick('/team')}
+            className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
           >
             Team
-          </a>
+          </button>
           <hr className="border-gray-200 dark:border-gray-700" />
           <button
             onClick={handleLogout}

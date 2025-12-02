@@ -418,13 +418,13 @@
   - Display on dashboard
   - _Requirements: 14.1, 14.2, 14.3, 14.4, 14.5_
 
-- [ ] 16. Environment Variables Tracking
-- [ ] 16.1 Implement environment variable encryption
+- [x] 16. Environment Variables Tracking
+- [x] 16.1 Implement environment variable encryption
   - Create encryption utilities for sensitive data
   - Implement encrypted storage for env vars
   - _Requirements: 15.1_
 
-- [ ] 16.2 Build env var API with role-based access
+- [x] 16.2 Build env var API with role-based access
   - GET /api/projects/:projectId/env-vars endpoint (role-restricted)
   - POST /api/projects/:projectId/env-vars endpoint
   - PATCH /api/env-vars/:id endpoint
@@ -432,7 +432,7 @@
   - Audit logging for changes
   - _Requirements: 15.1, 15.2, 15.3, 15.4, 15.5_
 
-- [ ] 16.3 Create env var management UI
+- [x] 16.3 Create env var management UI
   - EnvVarManager component with role-based visibility
   - Separate tabs for development and production
   - Add/edit/delete interface

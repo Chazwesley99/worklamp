@@ -18,3 +18,42 @@ I want the site to have light / dark mode and be dark by default. Be an UI/UX ex
 
 Be the expert that you are in development, software architecture, software development, UI, and UX and take your time and research the best ways to build the best site possible using the latest technologies, keeping all data extremely secure, all services secure, and to be sure to not use any outdated / not supported SDKs or packages that may open the application up to exposure or hacking. Security should come first before anything else as you are designing the application. I want the site to be built from the foundation upward for each page / feature, starting with the page / feature API, the actual page / feature added to the site, the admin pages added for controlling the page / feature, and tests run to verify everything is working properly and documentation stored in a /DOCS folder on how to user test each page / feature. I want to verify everything is working before we move forward with the next feature / page.
 
+
+- See who has been invited and invitation status
+- When going to "My Vars" the current project should remain - it is resetting the entire page
+- Specific Admin assignment of users who can see Env Var
+- Adding Billing page to Team Settings
+- Assign invited users to which Team projects they can see
+
+
+
+PS C:\Users\WesLowe\projects\Worklamp\backend> node test-encryption.js
+Testing encryption utilities...
+
+Test 1: Basic encryption/decryption
+  Plaintext: my-secret-api-key
+  Encrypted: eKhaEVpPrC3OIjGPBbuNlsMdz3vETqdJWWcLa4ifW10GMBJKrsSNHd69rJ5Jid+3ZF6j5rJvIt8MRzjIWO0NNg==:uox3ZMxXN/23rYZG6YstcA==:ic/UCigaLizyImTjh7C/pg==:TjJq6KrGpTw6JI5NZ7HV8Ro=
+  Decrypted: my-secret-api-key
+  ✓ Match: true
+
+Test 2: Different ciphertext for same plaintext
+  First encryption: 5YH7HuBlHm8Xg2sMnj51CFeXaPAa3LgobKAqVb7zBMMNh+KAtXYm/a0JMQCLbbSOOSdD6bpAnAna1oNsX8nJ3w==:Vc0X0Tw90YIUiMfri0tfBg==:AR9IUeY/x2jW1XVdj40hHQ==:DyZk4qvMuKOjTmi2wo5dibU=
+  Second encryption: rtP6RS7KH8EWxmYV7WTwoZobEWbgvGm97OBAqfgyzuS7dpN4g3iKhUpsZ0FLvYCqGgRlpNXBxSnntnhVgV0efw==:423pMVoMVP+N9dNuXO1yrA==:gNuXjIYtpM69iBR99V+tvg==:FC14+hSb9eeRdOKxkzM4Lvw=
+  ✓ Different: true
+
+Test 3: Complex strings with special characters
+  Plaintext: API_KEY=abc123!@#$%^&*()_+-={}[]|:";'<>?,./
+  Decrypted: API_KEY=abc123!@#$%^&*()_+-={}[]|:";'<>?,./
+  ✓ Match: true
+
+Test 4: isEncrypted function
+  isEncrypted(encrypted): true
+  isEncrypted(plaintext): false
+  ✓ Correct detection
+
+Test 5: Multiple round trips
+  Original: DATABASE_PASSWORD=super-secret-123
+  After 2 round trips: DATABASE_PASSWORD=super-secret-123
+  ✓ Match: true
+
+All tests passed! ✓

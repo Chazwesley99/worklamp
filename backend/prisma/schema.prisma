@@ -41,6 +41,7 @@ model User {
   notifications    Notification[]
   createdEnvVars   EnvVar[]         @relation("EnvVarCreator")
   createdChangeOrders ChangeOrder[] @relation("ChangeOrderCreator")
+  userEnvVars      UserEnvVar[]
 
   @@index([email])
 }
@@ -453,4 +454,20 @@ model AIConfig {
   tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@index([tenantId])
+}
+
+// UserEnvVar model - Personal environment variables for individual users
+model UserEnvVar {
+  id        String   @id @default(uuid())
+  userId    String
+  key       String
+  value     String   // Encrypted at rest
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, key])
+  @@index([userId])
 }

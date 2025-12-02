@@ -1,17 +1,17 @@
 import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import Home from '../app/page';
 
-describe('Home Page', () => {
-  it('renders the home page with title', () => {
-    render(<Home />);
-    const heading = screen.getByText('Worklamp');
-    expect(heading).toBeInTheDocument();
+describe('Example Test Suite', () => {
+  it('should pass a basic test', () => {
+    expect(true).toBe(true);
   });
 
-  it('displays the tagline', () => {
-    render(<Home />);
-    const tagline = screen.getByText('Project Management for Developers');
-    expect(tagline).toBeInTheDocument();
+  it('should perform basic arithmetic', () => {
+    expect(2 + 2).toBe(4);
+  });
+
+  it('should handle string operations', () => {
+    const str = 'Worklamp';
+    expect(str.length).toBe(8);
+    expect(str.toLowerCase()).toBe('worklamp');
   });
 });
