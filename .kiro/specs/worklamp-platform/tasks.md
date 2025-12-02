@@ -337,8 +337,8 @@
   - Add feature request into the dashboard page
   - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.5, 12.6_
 
-- [ ] 12. Milestone Management
-- [ ] 12.1 Implement milestone API endpoints
+- [x] 12. Milestone Management
+- [x] 12.1 Implement milestone API endpoints
   - GET /api/projects/:projectId/milestones endpoint
   - POST /api/projects/:projectId/milestones endpoint
   - PATCH /api/milestones/:id endpoint
@@ -350,7 +350,7 @@
   - **Property 18: Locked milestone immutability**
   - **Validates: Requirements 9.4**
 
-- [ ] 12.3 Implement change order system
+- [x] 12.3 Implement change order system
   - ChangeOrder model and API endpoints
   - Link change orders to locked milestones
   - _Requirements: 9.5_
@@ -359,7 +359,7 @@
   - **Property 19: Change order association**
   - **Validates: Requirements 9.5**
 
-- [ ] 12.5 Create milestone timeline UI
+- [x] 12.5 Create milestone timeline UI
   - MilestoneTimeline component with visual timeline
   - Milestone creation/edit modal
   - Version lock interface

@@ -15,6 +15,7 @@ import taskRoutes from './routes/task.routes';
 import bugRoutes from './routes/bug.routes';
 import featureRoutes from './routes/feature.routes';
 import notificationRoutes from './routes/notification.routes';
+import milestoneRoutes from './routes/milestone.routes';
 
 dotenv.config();
 
@@ -100,6 +101,7 @@ app.use('/api', taskRoutes);
 app.use('/api', bugRoutes);
 app.use('/api', featureRoutes);
 app.use('/api', notificationRoutes);
+app.use('/api', milestoneRoutes);
 
 // Health check endpoint
 app.get('/health', async (req, res) => {
