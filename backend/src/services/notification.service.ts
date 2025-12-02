@@ -237,6 +237,44 @@ export class NotificationService {
 
     return { success: true };
   }
+
+  /**
+   * Notify admins about new task
+   */
+  async notifyAdminsAboutTask(
+    tenantId: string,
+    taskId: string,
+    taskTitle: string,
+    projectName: string
+  ) {
+    // Get all admin and owner users for the tenant
+    const adminMembers = await prisma.tenantMember.findMany({
+      where: {
+        tenantId,
+        role: { in: ['owner', 'admin'] },
+      },
+      select: {
+        userId: true,
+      },
+    });
+
+    const adminUserIds = adminMembers.map((member) => member.userId);
+
+    if (adminUserIds.length === 0) {
+      return { count: 0 };
+    }
+
+    // Create notifications for all admins
+    await this.createNotificationsForUsers(adminUserIds, {
+      type: 'task_assigned',
+      title: 'New Task Created',
+      message: `A new task "${taskTitle}" was created in project "${projectName}"`,
+      resourceType: 'task',
+      resourceId: taskId,
+    });
+
+    return { count: adminUserIds.length };
+  }
 }
 
 export const notificationService = new NotificationService();

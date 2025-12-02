@@ -1,5 +1,6 @@
 import { prisma } from '../config/database';
 import { CreateTaskInput, UpdateTaskInput, AssignTaskInput } from '../validators/task.validator';
+import { notificationService } from './notification.service';
 
 export class TaskService {
   /**
@@ -195,6 +196,14 @@ export class TaskService {
         },
       },
     });
+
+    // Notify admins about new task
+    try {
+      await notificationService.notifyAdminsAboutTask(tenantId, task.id, task.title, project.name);
+    } catch (error) {
+      // Log error but don't fail the task creation
+      console.error('Failed to send task notifications:', error);
+    }
 
     return task;
   }

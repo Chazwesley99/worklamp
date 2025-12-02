@@ -23,7 +23,7 @@ export function NotificationBell() {
   const { data, isLoading } = useQuery({
     queryKey: ['notifications'],
     queryFn: () => apiClient.get<{ notifications: Notification[] }>('/api/notifications'),
-    refetchInterval: 30000, // Refetch every 30 seconds
+    refetchInterval: 15000, // Refetch every 15 seconds
   });
 
   const notifications = data?.notifications || [];
