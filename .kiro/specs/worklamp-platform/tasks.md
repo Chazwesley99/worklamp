@@ -368,8 +368,8 @@
   - Integrate the milestone feature into the dashboard (paid tier only)
   - _Requirements: 8.1, 9.1, 9.2, 9.3, 9.4, 9.5, 9.6_
 
-- [ ] 13. Team Communication System
-- [ ] 13.1 Implement channel and messaging API
+- [x] 13. Team Communication System
+- [x] 13.1 Implement channel and messaging API
   - GET /api/projects/:projectId/channels endpoint
   - POST /api/projects/:projectId/channels endpoint
   - PATCH /api/channels/:id endpoint (permissions)
@@ -390,7 +390,7 @@
   - **Property 21: Message delivery to authorized users**
   - **Validates: Requirements 20.3**
 
-- [ ] 13.5 Create team communication UI
+- [x] 13.5 Create team communication UI
   - ChatPanel component (Slack-like interface)
   - ChannelList with permission indicators
   - MessageList with auto-scroll and real-time updates

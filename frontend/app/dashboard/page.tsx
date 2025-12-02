@@ -11,6 +11,7 @@ import MilestoneTimeline from '@/components/milestone/MilestoneTimeline';
 import MilestoneForm from '@/components/milestone/MilestoneForm';
 import ChangeOrderForm from '@/components/milestone/ChangeOrderForm';
 import ChangeOrderList from '@/components/milestone/ChangeOrderList';
+import { ChatPanel } from '@/components/channel/ChatPanel';
 import { type Task, taskApi } from '@/lib/api/task';
 import { type Bug, bugApi } from '@/lib/api/bug';
 import { type FeatureRequest, featureApi } from '@/lib/api/feature';
@@ -40,7 +41,9 @@ export default function DashboardPage() {
   const [isLoadingBugs, setIsLoadingBugs] = useState(false);
   const [isLoadingFeatures, setIsLoadingFeatures] = useState(false);
   const [isLoadingMilestones, setIsLoadingMilestones] = useState(false);
-  const [activeTab, setActiveTab] = useState<'milestones' | 'tasks' | 'bugs' | 'features'>('tasks');
+  const [activeTab, setActiveTab] = useState<'milestones' | 'tasks' | 'bugs' | 'features' | 'chat'>(
+    'tasks'
+  );
   const [isMilestoneFormOpen, setIsMilestoneFormOpen] = useState(false);
   const [isChangeOrderFormOpen, setIsChangeOrderFormOpen] = useState(false);
   const [isChangeOrderListOpen, setIsChangeOrderListOpen] = useState(false);
@@ -359,76 +362,95 @@ export default function DashboardPage() {
               >
                 Requests ({features.length})
               </button>
+              <button
+                onClick={() => setActiveTab('chat')}
+                className={`px-4 py-2 font-medium transition-colors ${
+                  activeTab === 'chat'
+                    ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                }`}
+              >
+                Chat
+              </button>
             </div>
 
             {/* Content */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-              {activeTab === 'milestones' ? (
-                <>
-                  <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                      Milestone Timeline
-                    </h2>
-                    <div className="flex gap-2">
-                      <Button onClick={handleCreateChangeOrder}>Create Change Order</Button>
-                      <Button onClick={handleCreateMilestone}>Create Milestone</Button>
+            {activeTab === 'chat' ? (
+              <div
+                className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden"
+                style={{ height: '600px' }}
+              >
+                <ChatPanel projectId={selectedProject.id} />
+              </div>
+            ) : (
+              <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+                {activeTab === 'milestones' ? (
+                  <>
+                    <div className="flex justify-between items-center mb-6">
+                      <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                        Milestone Timeline
+                      </h2>
+                      <div className="flex gap-2">
+                        <Button onClick={handleCreateChangeOrder}>Create Change Order</Button>
+                        <Button onClick={handleCreateMilestone}>Create Milestone</Button>
+                      </div>
                     </div>
-                  </div>
-                  {isLoadingMilestones ? (
+                    {isLoadingMilestones ? (
+                      <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                        Loading milestones...
+                      </div>
+                    ) : (
+                      <MilestoneTimeline
+                        milestones={milestones}
+                        onEdit={handleEditMilestone}
+                        onDelete={handleDeleteMilestone}
+                        onLock={handleLockMilestone}
+                        onViewChangeOrders={handleViewChangeOrders}
+                      />
+                    )}
+                  </>
+                ) : activeTab === 'tasks' ? (
+                  isLoadingTasks ? (
                     <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                      Loading milestones...
+                      Loading tasks...
                     </div>
                   ) : (
-                    <MilestoneTimeline
-                      milestones={milestones}
-                      onEdit={handleEditMilestone}
-                      onDelete={handleDeleteMilestone}
-                      onLock={handleLockMilestone}
-                      onViewChangeOrders={handleViewChangeOrders}
+                    <TaskList
+                      projectId={selectedProject.id}
+                      tasks={tasks}
+                      onTasksChange={handleTasksChange}
+                      milestones={selectedProject.useMilestones ? milestones : []}
                     />
-                  )}
-                </>
-              ) : activeTab === 'tasks' ? (
-                isLoadingTasks ? (
+                  )
+                ) : activeTab === 'bugs' ? (
+                  isLoadingBugs ? (
+                    <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                      Loading bugs...
+                    </div>
+                  ) : (
+                    <BugList
+                      projectId={selectedProject.id}
+                      bugs={bugs}
+                      onBugsChange={handleBugsChange}
+                    />
+                  )
+                ) : isLoadingFeatures ? (
                   <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                    Loading tasks...
+                    Loading feature requests...
                   </div>
                 ) : (
-                  <TaskList
+                  <FeatureRequestList
                     projectId={selectedProject.id}
-                    tasks={tasks}
-                    onTasksChange={handleTasksChange}
-                    milestones={selectedProject.useMilestones ? milestones : []}
+                    features={features}
+                    onFeaturesChange={() => {
+                      if (selectedProject) {
+                        loadFeatures(selectedProject.id);
+                      }
+                    }}
                   />
-                )
-              ) : activeTab === 'bugs' ? (
-                isLoadingBugs ? (
-                  <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                    Loading bugs...
-                  </div>
-                ) : (
-                  <BugList
-                    projectId={selectedProject.id}
-                    bugs={bugs}
-                    onBugsChange={handleBugsChange}
-                  />
-                )
-              ) : isLoadingFeatures ? (
-                <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                  Loading feature requests...
-                </div>
-              ) : (
-                <FeatureRequestList
-                  projectId={selectedProject.id}
-                  features={features}
-                  onFeaturesChange={() => {
-                    if (selectedProject) {
-                      loadFeatures(selectedProject.id);
-                    }
-                  }}
-                />
-              )}
-            </div>
+                )}
+              </div>
+            )}
           </div>
         ) : (
           <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">

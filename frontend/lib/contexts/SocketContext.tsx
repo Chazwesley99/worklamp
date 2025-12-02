@@ -7,6 +7,13 @@ const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:300
 
 export type ConnectionStatus = 'connected' | 'disconnected' | 'connecting' | 'error';
 
+interface SocketResponse {
+  success: boolean;
+  error?: string;
+}
+
+type SocketEventHandler = (...args: unknown[]) => void;
+
 interface SocketContextValue {
   socket: Socket | null;
   connectionStatus: ConnectionStatus;
@@ -15,9 +22,9 @@ interface SocketContextValue {
   leaveProject: (projectId: string) => Promise<void>;
   joinChannel: (channelId: string) => Promise<void>;
   leaveChannel: (channelId: string) => Promise<void>;
-  emit: (event: string, data: any) => void;
-  on: (event: string, handler: (...args: any[]) => void) => void;
-  off: (event: string, handler: (...args: any[]) => void) => void;
+  emit: (event: string, data: unknown) => void;
+  on: (event: string, handler: SocketEventHandler) => void;
+  off: (event: string, handler: SocketEventHandler) => void;
 }
 
 const SocketContext = createContext<SocketContextValue | null>(null);
@@ -128,7 +135,7 @@ export function SocketProvider({ children, token }: SocketProviderProps) {
           return;
         }
 
-        socket.emit('join:project', { projectId }, (response: any) => {
+        socket.emit('join:project', { projectId }, (response: SocketResponse) => {
           if (response?.success) {
             resolve();
           } else {
@@ -149,7 +156,7 @@ export function SocketProvider({ children, token }: SocketProviderProps) {
           return;
         }
 
-        socket.emit('leave:project', { projectId }, (response: any) => {
+        socket.emit('leave:project', { projectId }, (response: SocketResponse) => {
           if (response?.success) {
             resolve();
           } else {
@@ -170,7 +177,7 @@ export function SocketProvider({ children, token }: SocketProviderProps) {
           return;
         }
 
-        socket.emit('join:channel', { channelId }, (response: any) => {
+        socket.emit('join:channel', { channelId }, (response: SocketResponse) => {
           if (response?.success) {
             resolve();
           } else {
@@ -191,7 +198,7 @@ export function SocketProvider({ children, token }: SocketProviderProps) {
           return;
         }
 
-        socket.emit('leave:channel', { channelId }, (response: any) => {
+        socket.emit('leave:channel', { channelId }, (response: SocketResponse) => {
           if (response?.success) {
             resolve();
           } else {
@@ -205,7 +212,7 @@ export function SocketProvider({ children, token }: SocketProviderProps) {
 
   // Emit an event
   const emit = useCallback(
-    (event: string, data: any) => {
+    (event: string, data: unknown) => {
       if (socket && socket.connected) {
         socket.emit(event, data);
       }
@@ -215,7 +222,7 @@ export function SocketProvider({ children, token }: SocketProviderProps) {
 
   // Subscribe to an event
   const on = useCallback(
-    (event: string, handler: (...args: any[]) => void) => {
+    (event: string, handler: SocketEventHandler) => {
       if (socket) {
         socket.on(event, handler);
       }
@@ -225,7 +232,7 @@ export function SocketProvider({ children, token }: SocketProviderProps) {
 
   // Unsubscribe from an event
   const off = useCallback(
-    (event: string, handler: (...args: unknown[]) => void) => {
+    (event: string, handler: SocketEventHandler) => {
       if (socket) {
         socket.off(event, handler);
       }

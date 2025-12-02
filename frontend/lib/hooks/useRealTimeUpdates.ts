@@ -4,19 +4,67 @@ import { useEffect, useCallback, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useSocket } from '../contexts/SocketContext';
 
+interface TaskEventData {
+  task?: {
+    id: string;
+    [key: string]: unknown;
+  };
+  taskId?: string;
+  timestamp: string;
+}
+
+interface BugEventData {
+  bug?: {
+    id: string;
+    [key: string]: unknown;
+  };
+  timestamp: string;
+}
+
+interface FeatureEventData {
+  feature?: {
+    id: string;
+    [key: string]: unknown;
+  };
+  timestamp: string;
+}
+
+interface MessageEventData {
+  message?: {
+    id: string;
+    channelId: string;
+    [key: string]: unknown;
+  };
+  timestamp: string;
+}
+
+interface NotificationEventData {
+  notification?: {
+    id: string;
+    [key: string]: unknown;
+  };
+  timestamp: string;
+}
+
+interface TypingEventData {
+  userId: string;
+  channelId: string;
+  isTyping: boolean;
+}
+
 interface RealTimeUpdateOptions {
   projectId?: string;
   channelId?: string;
-  onTaskCreated?: (data: any) => void;
-  onTaskUpdated?: (data: any) => void;
-  onTaskDeleted?: (data: any) => void;
-  onBugCreated?: (data: any) => void;
-  onBugUpdated?: (data: any) => void;
-  onFeatureCreated?: (data: any) => void;
-  onFeatureUpdated?: (data: any) => void;
-  onMessageNew?: (data: any) => void;
-  onNotificationNew?: (data: any) => void;
-  onUserTyping?: (data: any) => void;
+  onTaskCreated?: (data: TaskEventData) => void;
+  onTaskUpdated?: (data: TaskEventData) => void;
+  onTaskDeleted?: (data: TaskEventData) => void;
+  onBugCreated?: (data: BugEventData) => void;
+  onBugUpdated?: (data: BugEventData) => void;
+  onFeatureCreated?: (data: FeatureEventData) => void;
+  onFeatureUpdated?: (data: FeatureEventData) => void;
+  onMessageNew?: (data: MessageEventData) => void;
+  onNotificationNew?: (data: NotificationEventData) => void;
+  onUserTyping?: (data: TypingEventData) => void;
   autoInvalidateQueries?: boolean;
 }
 
@@ -93,7 +141,7 @@ export function useRealTimeUpdates(options: RealTimeUpdateOptions = {}) {
   useEffect(() => {
     if (!socket) return;
 
-    const handleTaskCreated = (data: any) => {
+    const handleTaskCreated = (data: TaskEventData) => {
       console.log('Task created:', data);
       onTaskCreated?.(data);
       if (autoInvalidateQueries) {
@@ -102,7 +150,7 @@ export function useRealTimeUpdates(options: RealTimeUpdateOptions = {}) {
       }
     };
 
-    const handleTaskUpdated = (data: any) => {
+    const handleTaskUpdated = (data: TaskEventData) => {
       console.log('Task updated:', data);
       onTaskUpdated?.(data);
       if (autoInvalidateQueries) {
@@ -111,7 +159,7 @@ export function useRealTimeUpdates(options: RealTimeUpdateOptions = {}) {
       }
     };
 
-    const handleTaskDeleted = (data: any) => {
+    const handleTaskDeleted = (data: TaskEventData) => {
       console.log('Task deleted:', data);
       onTaskDeleted?.(data);
       if (autoInvalidateQueries) {
@@ -119,14 +167,14 @@ export function useRealTimeUpdates(options: RealTimeUpdateOptions = {}) {
       }
     };
 
-    on('task:created', handleTaskCreated);
-    on('task:updated', handleTaskUpdated);
-    on('task:deleted', handleTaskDeleted);
+    on('task:created', handleTaskCreated as (...args: unknown[]) => void);
+    on('task:updated', handleTaskUpdated as (...args: unknown[]) => void);
+    on('task:deleted', handleTaskDeleted as (...args: unknown[]) => void);
 
     return () => {
-      off('task:created', handleTaskCreated);
-      off('task:updated', handleTaskUpdated);
-      off('task:deleted', handleTaskDeleted);
+      off('task:created', handleTaskCreated as (...args: unknown[]) => void);
+      off('task:updated', handleTaskUpdated as (...args: unknown[]) => void);
+      off('task:deleted', handleTaskDeleted as (...args: unknown[]) => void);
     };
   }, [
     socket,
@@ -143,7 +191,7 @@ export function useRealTimeUpdates(options: RealTimeUpdateOptions = {}) {
   useEffect(() => {
     if (!socket) return;
 
-    const handleBugCreated = (data: any) => {
+    const handleBugCreated = (data: BugEventData) => {
       console.log('Bug created:', data);
       onBugCreated?.(data);
       if (autoInvalidateQueries) {
@@ -152,7 +200,7 @@ export function useRealTimeUpdates(options: RealTimeUpdateOptions = {}) {
       }
     };
 
-    const handleBugUpdated = (data: any) => {
+    const handleBugUpdated = (data: BugEventData) => {
       console.log('Bug updated:', data);
       onBugUpdated?.(data);
       if (autoInvalidateQueries) {
@@ -161,12 +209,12 @@ export function useRealTimeUpdates(options: RealTimeUpdateOptions = {}) {
       }
     };
 
-    on('bug:created', handleBugCreated);
-    on('bug:updated', handleBugUpdated);
+    on('bug:created', handleBugCreated as (...args: unknown[]) => void);
+    on('bug:updated', handleBugUpdated as (...args: unknown[]) => void);
 
     return () => {
-      off('bug:created', handleBugCreated);
-      off('bug:updated', handleBugUpdated);
+      off('bug:created', handleBugCreated as (...args: unknown[]) => void);
+      off('bug:updated', handleBugUpdated as (...args: unknown[]) => void);
     };
   }, [socket, onBugCreated, onBugUpdated, autoInvalidateQueries, queryClient, on, off]);
 
@@ -174,7 +222,7 @@ export function useRealTimeUpdates(options: RealTimeUpdateOptions = {}) {
   useEffect(() => {
     if (!socket) return;
 
-    const handleFeatureCreated = (data: any) => {
+    const handleFeatureCreated = (data: FeatureEventData) => {
       console.log('Feature created:', data);
       onFeatureCreated?.(data);
       if (autoInvalidateQueries) {
@@ -183,7 +231,7 @@ export function useRealTimeUpdates(options: RealTimeUpdateOptions = {}) {
       }
     };
 
-    const handleFeatureUpdated = (data: any) => {
+    const handleFeatureUpdated = (data: FeatureEventData) => {
       console.log('Feature updated:', data);
       onFeatureUpdated?.(data);
       if (autoInvalidateQueries) {
@@ -192,12 +240,12 @@ export function useRealTimeUpdates(options: RealTimeUpdateOptions = {}) {
       }
     };
 
-    on('feature:created', handleFeatureCreated);
-    on('feature:updated', handleFeatureUpdated);
+    on('feature:created', handleFeatureCreated as (...args: unknown[]) => void);
+    on('feature:updated', handleFeatureUpdated as (...args: unknown[]) => void);
 
     return () => {
-      off('feature:created', handleFeatureCreated);
-      off('feature:updated', handleFeatureUpdated);
+      off('feature:created', handleFeatureCreated as (...args: unknown[]) => void);
+      off('feature:updated', handleFeatureUpdated as (...args: unknown[]) => void);
     };
   }, [socket, onFeatureCreated, onFeatureUpdated, autoInvalidateQueries, queryClient, on, off]);
 
@@ -205,7 +253,7 @@ export function useRealTimeUpdates(options: RealTimeUpdateOptions = {}) {
   useEffect(() => {
     if (!socket) return;
 
-    const handleMessageNew = (data: any) => {
+    const handleMessageNew = (data: MessageEventData) => {
       console.log('New message:', data);
       onMessageNew?.(data);
       if (autoInvalidateQueries) {
@@ -214,10 +262,10 @@ export function useRealTimeUpdates(options: RealTimeUpdateOptions = {}) {
       }
     };
 
-    on('message:new', handleMessageNew);
+    on('message:new', handleMessageNew as (...args: unknown[]) => void);
 
     return () => {
-      off('message:new', handleMessageNew);
+      off('message:new', handleMessageNew as (...args: unknown[]) => void);
     };
   }, [socket, onMessageNew, autoInvalidateQueries, queryClient, on, off]);
 
@@ -225,7 +273,7 @@ export function useRealTimeUpdates(options: RealTimeUpdateOptions = {}) {
   useEffect(() => {
     if (!socket) return;
 
-    const handleNotificationNew = (data: any) => {
+    const handleNotificationNew = (data: NotificationEventData) => {
       console.log('New notification:', data);
       onNotificationNew?.(data);
       if (autoInvalidateQueries) {
@@ -233,10 +281,10 @@ export function useRealTimeUpdates(options: RealTimeUpdateOptions = {}) {
       }
     };
 
-    on('notification:new', handleNotificationNew);
+    on('notification:new', handleNotificationNew as (...args: unknown[]) => void);
 
     return () => {
-      off('notification:new', handleNotificationNew);
+      off('notification:new', handleNotificationNew as (...args: unknown[]) => void);
     };
   }, [socket, onNotificationNew, autoInvalidateQueries, queryClient, on, off]);
 
@@ -244,14 +292,14 @@ export function useRealTimeUpdates(options: RealTimeUpdateOptions = {}) {
   useEffect(() => {
     if (!socket) return;
 
-    const handleUserTyping = (data: any) => {
+    const handleUserTyping = (data: TypingEventData) => {
       onUserTyping?.(data);
     };
 
-    on('user:typing', handleUserTyping);
+    on('user:typing', handleUserTyping as (...args: unknown[]) => void);
 
     return () => {
-      off('user:typing', handleUserTyping);
+      off('user:typing', handleUserTyping as (...args: unknown[]) => void);
     };
   }, [socket, onUserTyping, on, off]);
 
