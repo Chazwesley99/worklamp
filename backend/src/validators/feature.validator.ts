@@ -31,10 +31,10 @@ export const updateFeatureSchema = z.object({
   ownerId: z.string().uuid('Invalid owner ID').optional().nullable(),
 });
 
-export const voteFeatureSchema = z.object({
-  // No body needed for voting, but we validate the request
+export const assignFeatureSchema = z.object({
+  userIds: z.array(z.string().uuid('Invalid user ID')).min(1, 'At least one user must be assigned'),
 });
 
 export type CreateFeatureInput = z.infer<typeof createFeatureSchema>;
 export type UpdateFeatureInput = z.infer<typeof updateFeatureSchema>;
-export type VoteFeatureInput = z.infer<typeof voteFeatureSchema>;
+export type AssignFeatureInput = z.infer<typeof assignFeatureSchema>;

@@ -311,8 +311,8 @@
   - Quick add bug button on dashboard
   - _Requirements: 8.3, 11.1, 11.2, 11.3, 11.4, 11.5, 11.6, 11.7, 11.8_
 
-- [ ] 11. Feature Request System
-- [ ] 11.1 Implement feature request API
+- [x] 11. Feature Request System
+- [x] 11.1 Implement feature request API
   - GET /api/projects/:projectId/features endpoint
   - POST /api/projects/:projectId/features endpoint
   - PATCH /api/features/:id endpoint
@@ -321,7 +321,7 @@
   - POST /api/features/:id/comments endpoint
   - _Requirements: 12.1, 12.2, 12.3, 12.4, 12.5, 12.6_
 
-- [ ] 11.2 Implement feature request notifications
+- [x] 11.2 Implement feature request notifications
   - Notify admins on new feature request creation
   - _Requirements: 12.7_
 
@@ -329,7 +329,7 @@
   - **Property 17: Admin notification on new feature requests**
   - **Validates: Requirements 12.7**
 
-- [ ] 11.4 Create feature request UI
+- [x] 11.4 Create feature request UI
   - FeatureRequestList component with vote sorting
   - FeatureRequestCard with voting
   - FeatureRequestForm modal

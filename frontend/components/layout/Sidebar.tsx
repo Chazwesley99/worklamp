@@ -103,7 +103,7 @@ const navItems: NavItem[] = [
     ),
   },
   {
-    name: 'Features',
+    name: 'Requests',
     href: '/features',
     icon: (
       <svg

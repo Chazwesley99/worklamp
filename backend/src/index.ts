@@ -13,6 +13,7 @@ import tenantRoutes from './routes/tenant.routes';
 import projectRoutes from './routes/project.routes';
 import taskRoutes from './routes/task.routes';
 import bugRoutes from './routes/bug.routes';
+import featureRoutes from './routes/feature.routes';
 import notificationRoutes from './routes/notification.routes';
 
 dotenv.config();
@@ -97,6 +98,7 @@ app.use('/api/tenants', tenantRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api', taskRoutes);
 app.use('/api', bugRoutes);
+app.use('/api', featureRoutes);
 app.use('/api', notificationRoutes);
 
 // Health check endpoint
