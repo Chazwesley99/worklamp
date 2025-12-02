@@ -8,6 +8,7 @@ export interface Project {
   status: 'active' | 'completed' | 'archived';
   publicBugTracking: boolean;
   publicFeatureRequests: boolean;
+  useMilestones: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -17,6 +18,7 @@ export interface CreateProjectRequest {
   description?: string;
   publicBugTracking?: boolean;
   publicFeatureRequests?: boolean;
+  useMilestones?: boolean;
 }
 
 export interface UpdateProjectRequest {
@@ -25,6 +27,7 @@ export interface UpdateProjectRequest {
   status?: 'active' | 'completed' | 'archived';
   publicBugTracking?: boolean;
   publicFeatureRequests?: boolean;
+  useMilestones?: boolean;
 }
 
 export const projectApi = {

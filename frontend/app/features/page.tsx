@@ -1,54 +1,79 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/lib/contexts/AuthContext';
-import { useProject } from '@/lib/contexts/ProjectContext';
+import React, { useState, useEffect } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import FeatureRequestList from '@/components/feature/FeatureRequestList';
+import { type FeatureRequest, featureApi } from '@/lib/api/feature';
+import { useProject } from '@/lib/contexts/ProjectContext';
+import { useToast } from '@/lib/contexts/ToastContext';
 
 export default function FeaturesPage() {
-  const { user, isLoading: authLoading } = useAuth();
   const { selectedProject } = useProject();
-  const router = useRouter();
-  const [isLoading, setIsLoading] = useState(true);
+  const [features, setFeatures] = useState<FeatureRequest[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const { showToast } = useToast();
 
   useEffect(() => {
-    if (!authLoading) {
-      if (!user) {
-        router.push('/');
-      } else {
-        setIsLoading(false);
-      }
+    if (selectedProject) {
+      loadFeatures(selectedProject.id);
     }
-  }, [user, authLoading, router]);
+  }, [selectedProject]);
 
-  if (isLoading || authLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
+  const loadFeatures = async (projectId: string) => {
+    try {
+      setIsLoading(true);
+      const data = await featureApi.getFeatures(projectId);
+      setFeatures(data);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to load feature requests';
+      if (!message.includes('404') && !message.includes('not found')) {
+        showToast(message, 'error');
+      }
+      setFeatures([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-  if (!selectedProject) {
-    return (
-      <DashboardLayout>
-        <div className="text-center py-12">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-            No Project Selected
-          </h2>
-          <p className="text-gray-600 dark:text-gray-400">
-            Please select a project to view requests.
-          </p>
-        </div>
-      </DashboardLayout>
-    );
-  }
+  const handleFeaturesChange = () => {
+    if (selectedProject) {
+      loadFeatures(selectedProject.id);
+    }
+  };
 
   return (
     <DashboardLayout>
-      <FeatureRequestList projectId={selectedProject.id} />
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Feature Requests</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">
+            Track and manage feature requests across your projects
+          </p>
+        </div>
+
+        {selectedProject ? (
+          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+            {isLoading ? (
+              <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                Loading feature requests...
+              </div>
+            ) : (
+              <FeatureRequestList
+                projectId={selectedProject.id}
+                features={features}
+                onFeaturesChange={handleFeaturesChange}
+              />
+            )}
+          </div>
+        ) : (
+          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+            <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+              <p className="text-lg mb-2">No project selected</p>
+              <p className="text-sm">Select a project from the dropdown to view feature requests</p>
+            </div>
+          </div>
+        )}
+      </div>
     </DashboardLayout>
   );
 }

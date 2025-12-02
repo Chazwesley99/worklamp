@@ -91,6 +91,7 @@ model Project {
   status                String   @default("active") // 'active' | 'completed' | 'archived'
   publicBugTracking     Boolean  @default(false)
   publicFeatureRequests Boolean  @default(false)
+  useMilestones         Boolean  @default(false)
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
 

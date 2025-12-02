@@ -4,18 +4,26 @@ import React, { useState, useEffect } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { TaskList } from '@/components/task/TaskList';
 import { type Task, taskApi } from '@/lib/api/task';
+import { milestoneApi, type Milestone } from '@/lib/api/milestone';
 import { useProject } from '@/lib/contexts/ProjectContext';
 import { useToast } from '@/lib/contexts/ToastContext';
 
 export default function TasksPage() {
   const { selectedProject, projects, isLoading: projectsLoading } = useProject();
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { showToast } = useToast();
 
   useEffect(() => {
     if (selectedProject) {
       loadTasks(selectedProject.id);
+      // Only load milestones if enabled for this project
+      if (selectedProject.useMilestones) {
+        loadMilestones(selectedProject.id);
+      } else {
+        setMilestones([]);
+      }
     }
   }, [selectedProject]);
 
@@ -29,6 +37,19 @@ export default function TasksPage() {
       showToast(message, 'error');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const loadMilestones = async (projectId: string) => {
+    try {
+      const data = await milestoneApi.getMilestones(projectId);
+      setMilestones(data);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to load milestones';
+      if (!message.includes('404') && !message.includes('not found')) {
+        showToast(message, 'error');
+      }
+      setMilestones([]);
     }
   };
 
@@ -96,6 +117,7 @@ export default function TasksPage() {
                 projectId={selectedProject.id}
                 tasks={tasks}
                 onTasksChange={handleTasksChange}
+                milestones={selectedProject.useMilestones ? milestones : []}
               />
             )}
           </div>

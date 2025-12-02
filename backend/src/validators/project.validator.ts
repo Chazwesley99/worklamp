@@ -5,6 +5,7 @@ export const createProjectSchema = z.object({
   description: z.string().max(500, 'Description is too long').optional(),
   publicBugTracking: z.boolean().optional().default(false),
   publicFeatureRequests: z.boolean().optional().default(false),
+  useMilestones: z.boolean().optional().default(false),
 });
 
 export const updateProjectSchema = z.object({
@@ -17,6 +18,7 @@ export const updateProjectSchema = z.object({
   status: z.enum(['active', 'completed', 'archived']).optional(),
   publicBugTracking: z.boolean().optional(),
   publicFeatureRequests: z.boolean().optional(),
+  useMilestones: z.boolean().optional(),
 });
 
 export type CreateProjectInput = z.infer<typeof createProjectSchema>;

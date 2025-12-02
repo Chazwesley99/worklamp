@@ -33,9 +33,15 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
         setSelectedProject(data.projects[0]);
       }
 
-      // If selected project no longer exists, select first available
-      if (selectedProject && !data.projects.find((p) => p.id === selectedProject.id)) {
-        setSelectedProject(data.projects[0] || null);
+      // If selected project exists, update it with fresh data
+      if (selectedProject) {
+        const updatedSelectedProject = data.projects.find((p) => p.id === selectedProject.id);
+        if (updatedSelectedProject) {
+          setSelectedProject(updatedSelectedProject);
+        } else {
+          // If selected project no longer exists, select first available
+          setSelectedProject(data.projects[0] || null);
+        }
       }
     } catch (error) {
       // Only show error toast if it's not a 404 (no projects found is expected for new users)

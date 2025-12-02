@@ -6,6 +6,7 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { TaskList } from '@/components/task/TaskList';
 import { type Task, taskApi } from '@/lib/api/task';
 import { type Project, projectApi } from '@/lib/api/project';
+import { milestoneApi, type Milestone } from '@/lib/api/milestone';
 import { useToast } from '@/lib/contexts/ToastContext';
 
 export default function ProjectTasksPage() {
@@ -13,6 +14,7 @@ export default function ProjectTasksPage() {
   const projectId = params.id as string;
   const [project, setProject] = useState<Project | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { showToast } = useToast();
 
@@ -23,12 +25,24 @@ export default function ProjectTasksPage() {
   const loadProjectAndTasks = async () => {
     try {
       setIsLoading(true);
-      const [projectData, tasksData] = await Promise.all([
-        projectApi.getProject(projectId),
-        taskApi.getTasks(projectId),
-      ]);
+      const projectData = await projectApi.getProject(projectId);
+      const tasksData = await taskApi.getTasks(projectId);
+
       setProject(projectData);
       setTasks(tasksData.tasks);
+
+      // Only load milestones if enabled for this project
+      if (projectData.useMilestones) {
+        try {
+          const milestonesData = await milestoneApi.getMilestones(projectId);
+          setMilestones(milestonesData);
+        } catch (error) {
+          // Ignore milestone loading errors
+          setMilestones([]);
+        }
+      } else {
+        setMilestones([]);
+      }
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to load project data';
       showToast(message, 'error');
@@ -72,7 +86,12 @@ export default function ProjectTasksPage() {
         </div>
 
         <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-          <TaskList projectId={projectId} tasks={tasks} onTasksChange={handleTasksChange} />
+          <TaskList
+            projectId={projectId}
+            tasks={tasks}
+            onTasksChange={handleTasksChange}
+            milestones={project?.useMilestones ? milestones : []}
+          />
         </div>
       </div>
     </DashboardLayout>

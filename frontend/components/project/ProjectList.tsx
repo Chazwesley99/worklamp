@@ -94,7 +94,12 @@ export function ProjectList({
                 </p>
               )}
 
-              <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-500">
+              <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-500 flex-wrap">
+                {project.useMilestones && (
+                  <span className="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-400 rounded">
+                    Milestones
+                  </span>
+                )}
                 {project.publicBugTracking && (
                   <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded">
                     Public Bugs

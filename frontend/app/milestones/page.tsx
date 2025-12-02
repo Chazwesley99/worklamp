@@ -211,31 +211,62 @@ export default function MilestonesPage() {
         </div>
 
         {selectedProject ? (
-          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                Milestone Timeline
-              </h2>
-              <div className="flex gap-2">
-                <Button onClick={handleCreateChangeOrder}>Create Change Order</Button>
-                <Button onClick={handleCreateMilestone}>Create Milestone</Button>
+          selectedProject.useMilestones ? (
+            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                  Milestone Timeline
+                </h2>
+                <div className="flex gap-2">
+                  <Button onClick={handleCreateChangeOrder}>Create Change Order</Button>
+                  <Button onClick={handleCreateMilestone}>Create Milestone</Button>
+                </div>
+              </div>
+
+              {isLoading ? (
+                <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                  Loading milestones...
+                </div>
+              ) : (
+                <MilestoneTimeline
+                  milestones={milestones}
+                  onEdit={handleEditMilestone}
+                  onDelete={handleDeleteMilestone}
+                  onLock={handleLockMilestone}
+                  onViewChangeOrders={handleViewChangeOrders}
+                />
+              )}
+            </div>
+          ) : (
+            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+              <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+                <svg
+                  className="w-16 h-16 mx-auto mb-4 text-gray-400"
+                  fill="none"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                <p className="text-lg mb-2 font-medium">Milestones Not Enabled</p>
+                <p className="text-sm mb-4">
+                  This project doesn't have milestones enabled. Enable them in project settings to
+                  start tracking milestones.
+                </p>
+                <Button
+                  variant="outline"
+                  onClick={() =>
+                    (window.location.href = `/projects/${selectedProject.id}/settings`)
+                  }
+                >
+                  Go to Project Settings
+                </Button>
               </div>
             </div>
-
-            {isLoading ? (
-              <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                Loading milestones...
-              </div>
-            ) : (
-              <MilestoneTimeline
-                milestones={milestones}
-                onEdit={handleEditMilestone}
-                onDelete={handleDeleteMilestone}
-                onLock={handleLockMilestone}
-                onViewChangeOrders={handleViewChangeOrders}
-              />
-            )}
-          </div>
+          )
         ) : (
           <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
             <div className="text-center py-12 text-gray-500 dark:text-gray-400">

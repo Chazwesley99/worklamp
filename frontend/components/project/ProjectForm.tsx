@@ -22,6 +22,7 @@ export function ProjectForm({ isOpen, onClose, project }: ProjectFormProps) {
     description: '',
     publicBugTracking: false,
     publicFeatureRequests: false,
+    useMilestones: false,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -34,6 +35,7 @@ export function ProjectForm({ isOpen, onClose, project }: ProjectFormProps) {
           description: project.description || '',
           publicBugTracking: project.publicBugTracking,
           publicFeatureRequests: project.publicFeatureRequests,
+          useMilestones: project.useMilestones || false,
         });
       } else {
         setFormData({
@@ -41,6 +43,7 @@ export function ProjectForm({ isOpen, onClose, project }: ProjectFormProps) {
           description: '',
           publicBugTracking: false,
           publicFeatureRequests: false,
+          useMilestones: false,
         });
       }
       setErrors({});
@@ -69,6 +72,7 @@ export function ProjectForm({ isOpen, onClose, project }: ProjectFormProps) {
     mutationFn: (data: CreateProjectRequest) => projectApi.updateProject(project!.id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
+      queryClient.invalidateQueries({ queryKey: ['project', project!.id] });
       onClose();
     },
     onError: (error: unknown) => {
@@ -137,20 +141,41 @@ export function ProjectForm({ isOpen, onClose, project }: ProjectFormProps) {
           rows={4}
         />
 
-        <div className="space-y-2">
-          <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Public Access</p>
-          <Checkbox
-            label="Enable public bug tracking"
-            checked={formData.publicBugTracking}
-            onChange={(e) => setFormData({ ...formData, publicBugTracking: e.target.checked })}
-            disabled={isLoading}
-          />
-          <Checkbox
-            label="Enable public feature requests"
-            checked={formData.publicFeatureRequests}
-            onChange={(e) => setFormData({ ...formData, publicFeatureRequests: e.target.checked })}
-            disabled={isLoading}
-          />
+        <div className="space-y-3">
+          <div>
+            <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Project Features
+            </p>
+            <Checkbox
+              label="Enable milestones"
+              checked={formData.useMilestones}
+              onChange={(e) => setFormData({ ...formData, useMilestones: e.target.checked })}
+              disabled={isLoading}
+            />
+            <p className="text-xs text-gray-500 dark:text-gray-400 ml-6 mt-1">
+              Track project progress with milestones and change orders
+            </p>
+          </div>
+
+          <div>
+            <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Public Access
+            </p>
+            <Checkbox
+              label="Enable public bug tracking"
+              checked={formData.publicBugTracking}
+              onChange={(e) => setFormData({ ...formData, publicBugTracking: e.target.checked })}
+              disabled={isLoading}
+            />
+            <Checkbox
+              label="Enable public feature requests"
+              checked={formData.publicFeatureRequests}
+              onChange={(e) =>
+                setFormData({ ...formData, publicFeatureRequests: e.target.checked })
+              }
+              disabled={isLoading}
+            />
+          </div>
         </div>
 
         <div className="flex justify-end gap-3 pt-4">

@@ -66,7 +66,8 @@ export class ProjectController {
   async createProject(req: Request, res: Response) {
     try {
       const { tenantId } = req.user as AuthRequest['user'];
-      const { name, description, publicBugTracking, publicFeatureRequests } = req.body;
+      const { name, description, publicBugTracking, publicFeatureRequests, useMilestones } =
+        req.body;
 
       if (!name) {
         return res.status(400).json({
@@ -82,6 +83,7 @@ export class ProjectController {
         description,
         publicBugTracking,
         publicFeatureRequests,
+        useMilestones,
       });
 
       res.status(201).json(project);
@@ -105,7 +107,8 @@ export class ProjectController {
     try {
       const { tenantId } = req.user as AuthRequest['user'];
       const { id } = req.params;
-      const { name, description, status, publicBugTracking, publicFeatureRequests } = req.body;
+      const { name, description, status, publicBugTracking, publicFeatureRequests, useMilestones } =
+        req.body;
 
       const project = await projectService.updateProject(id, tenantId, {
         name,
@@ -113,6 +116,7 @@ export class ProjectController {
         status,
         publicBugTracking,
         publicFeatureRequests,
+        useMilestones,
       });
 
       res.json(project);

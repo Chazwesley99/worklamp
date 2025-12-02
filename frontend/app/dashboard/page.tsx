@@ -40,9 +40,7 @@ export default function DashboardPage() {
   const [isLoadingBugs, setIsLoadingBugs] = useState(false);
   const [isLoadingFeatures, setIsLoadingFeatures] = useState(false);
   const [isLoadingMilestones, setIsLoadingMilestones] = useState(false);
-  const [activeTab, setActiveTab] = useState<'milestones' | 'tasks' | 'bugs' | 'features'>(
-    'milestones'
-  );
+  const [activeTab, setActiveTab] = useState<'milestones' | 'tasks' | 'bugs' | 'features'>('tasks');
   const [isMilestoneFormOpen, setIsMilestoneFormOpen] = useState(false);
   const [isChangeOrderFormOpen, setIsChangeOrderFormOpen] = useState(false);
   const [isChangeOrderListOpen, setIsChangeOrderListOpen] = useState(false);
@@ -56,10 +54,21 @@ export default function DashboardPage() {
   // Load tasks, bugs, features, and milestones when a project is selected
   useEffect(() => {
     if (selectedProject) {
-      loadMilestones(selectedProject.id);
       loadTasks(selectedProject.id);
       loadBugs(selectedProject.id);
       loadFeatures(selectedProject.id);
+
+      // Only load milestones if enabled for this project
+      if (selectedProject.useMilestones) {
+        loadMilestones(selectedProject.id);
+      } else {
+        setMilestones([]);
+      }
+
+      // Switch to tasks tab if milestones are disabled and we're on milestones tab
+      if (!selectedProject.useMilestones && activeTab === 'milestones') {
+        setActiveTab('tasks');
+      }
     }
   }, [selectedProject]);
 
@@ -308,16 +317,18 @@ export default function DashboardPage() {
           <div className="space-y-4">
             {/* Tabs */}
             <div className="flex gap-2 border-b border-gray-200 dark:border-gray-700">
-              <button
-                onClick={() => setActiveTab('milestones')}
-                className={`px-4 py-2 font-medium transition-colors ${
-                  activeTab === 'milestones'
-                    ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
-                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
-                }`}
-              >
-                Milestones ({milestones.length})
-              </button>
+              {selectedProject.useMilestones && (
+                <button
+                  onClick={() => setActiveTab('milestones')}
+                  className={`px-4 py-2 font-medium transition-colors ${
+                    activeTab === 'milestones'
+                      ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
+                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                  }`}
+                >
+                  Milestones ({milestones.length})
+                </button>
+              )}
               <button
                 onClick={() => setActiveTab('tasks')}
                 className={`px-4 py-2 font-medium transition-colors ${
@@ -387,6 +398,7 @@ export default function DashboardPage() {
                     projectId={selectedProject.id}
                     tasks={tasks}
                     onTasksChange={handleTasksChange}
+                    milestones={selectedProject.useMilestones ? milestones : []}
                   />
                 )
               ) : activeTab === 'bugs' ? (
@@ -406,7 +418,15 @@ export default function DashboardPage() {
                   Loading feature requests...
                 </div>
               ) : (
-                <FeatureRequestList projectId={selectedProject.id} />
+                <FeatureRequestList
+                  projectId={selectedProject.id}
+                  features={features}
+                  onFeaturesChange={() => {
+                    if (selectedProject) {
+                      loadFeatures(selectedProject.id);
+                    }
+                  }}
+                />
               )}
             </div>
           </div>

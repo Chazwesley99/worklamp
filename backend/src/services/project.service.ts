@@ -41,6 +41,7 @@ export class ProjectService {
       description?: string;
       publicBugTracking?: boolean;
       publicFeatureRequests?: boolean;
+      useMilestones?: boolean;
     }
   ) {
     const project = await prisma.project.create({
@@ -50,6 +51,7 @@ export class ProjectService {
         description: data.description,
         publicBugTracking: data.publicBugTracking ?? false,
         publicFeatureRequests: data.publicFeatureRequests ?? false,
+        useMilestones: data.useMilestones ?? false,
         status: 'active',
       },
     });
@@ -69,6 +71,7 @@ export class ProjectService {
       status?: string;
       publicBugTracking?: boolean;
       publicFeatureRequests?: boolean;
+      useMilestones?: boolean;
     }
   ) {
     // Verify project belongs to tenant (throws if not found)

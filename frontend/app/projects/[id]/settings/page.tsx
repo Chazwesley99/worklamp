@@ -35,6 +35,7 @@ export default function ProjectSettingsPage() {
         status: project.status,
         publicBugTracking: project.publicBugTracking,
         publicFeatureRequests: project.publicFeatureRequests,
+        useMilestones: project.useMilestones,
       });
     }
   }, [project]);
@@ -166,6 +167,24 @@ export default function ProjectSettingsPage() {
             ]}
             disabled={updateMutation.isPending}
           />
+        </div>
+
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 space-y-4">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+            Project Features
+          </h2>
+
+          <div>
+            <Checkbox
+              label="Enable milestones"
+              checked={formData.useMilestones || false}
+              onChange={(e) => setFormData({ ...formData, useMilestones: e.target.checked })}
+              disabled={updateMutation.isPending}
+            />
+            <p className="text-xs text-gray-500 dark:text-gray-400 ml-6 mt-1">
+              Track project progress with milestones and change orders
+            </p>
+          </div>
         </div>
 
         <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 space-y-4">

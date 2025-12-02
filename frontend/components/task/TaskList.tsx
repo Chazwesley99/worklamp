@@ -29,6 +29,7 @@ export function TaskList({
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
+  const [milestoneFilter, setMilestoneFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'priority' | 'created' | 'status'>('priority');
   const { showToast } = useToast();
 
@@ -66,6 +67,15 @@ export function TaskList({
       filtered = filtered.filter((task) => task.category === categoryFilter);
     }
 
+    // Milestone filter
+    if (milestoneFilter !== 'all') {
+      if (milestoneFilter === 'none') {
+        filtered = filtered.filter((task) => !task.milestoneId);
+      } else {
+        filtered = filtered.filter((task) => task.milestoneId === milestoneFilter);
+      }
+    }
+
     // Sort
     filtered = [...filtered].sort((a, b) => {
       switch (sortBy) {
@@ -83,7 +93,7 @@ export function TaskList({
     });
 
     return filtered;
-  }, [tasks, searchQuery, statusFilter, categoryFilter, sortBy]);
+  }, [tasks, searchQuery, statusFilter, categoryFilter, milestoneFilter, sortBy]);
 
   // Group tasks by category
   const groupedTasks = useMemo(() => {
@@ -156,7 +166,7 @@ export function TaskList({
       </div>
 
       {/* Filters */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
         <Input
           placeholder="Search tasks..."
           value={searchQuery}
@@ -182,6 +192,18 @@ export function TaskList({
             ...categories.map((cat) => ({ value: cat, label: cat })),
           ]}
         />
+
+        {milestones.length > 0 && (
+          <Select
+            value={milestoneFilter}
+            onChange={(e) => setMilestoneFilter(e.target.value)}
+            options={[
+              { value: 'all', label: 'All Milestones' },
+              { value: 'none', label: 'No Milestone' },
+              ...milestones.map((milestone) => ({ value: milestone.id, label: milestone.name })),
+            ]}
+          />
+        )}
 
         <Select
           value={sortBy}
