@@ -6,6 +6,7 @@ import FeatureRequestList from '@/components/feature/FeatureRequestList';
 import { type FeatureRequest, featureApi } from '@/lib/api/feature';
 import { useProject } from '@/lib/contexts/ProjectContext';
 import { useToast } from '@/lib/contexts/ToastContext';
+import { exportToCSV } from '@/lib/utils/csvExport';
 
 export default function FeaturesPage() {
   const { selectedProject } = useProject();
@@ -41,6 +42,36 @@ export default function FeaturesPage() {
     }
   };
 
+  const handleExportCSV = () => {
+    const exportData = features.map((feature) => ({
+      title: feature.title,
+      description: feature.description || '',
+      status: feature.status,
+      priority: feature.priority,
+      assignees: feature.assignments.map((a) => a.user.name).join(', ') || 'Unassigned',
+      createdBy: feature.createdBy.name,
+      votes: feature.votes,
+      createdAt: new Date(feature.createdAt).toLocaleDateString(),
+      updatedAt: new Date(feature.updatedAt).toLocaleDateString(),
+    }));
+
+    const headers = [
+      { key: 'title' as const, label: 'Title' },
+      { key: 'description' as const, label: 'Description' },
+      { key: 'status' as const, label: 'Status' },
+      { key: 'priority' as const, label: 'Priority' },
+      { key: 'assignees' as const, label: 'Assignees' },
+      { key: 'createdBy' as const, label: 'Created By' },
+      { key: 'votes' as const, label: 'Votes' },
+      { key: 'createdAt' as const, label: 'Created' },
+      { key: 'updatedAt' as const, label: 'Updated' },
+    ];
+
+    const filename = `${selectedProject?.name || 'project'}-features-${new Date().toISOString().split('T')[0]}.csv`;
+    exportToCSV(exportData, headers, filename);
+    showToast('Feature requests exported successfully', 'success');
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -62,6 +93,7 @@ export default function FeaturesPage() {
                 projectId={selectedProject.id}
                 features={features}
                 onFeaturesChange={handleFeaturesChange}
+                onExport={handleExportCSV}
               />
             )}
           </div>

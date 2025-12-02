@@ -28,6 +28,7 @@ import { useProject } from '@/lib/contexts/ProjectContext';
 import { useToast } from '@/lib/contexts/ToastContext';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
+import { exportToCSV } from '@/lib/utils/csvExport';
 
 export default function DashboardPage() {
   const [isProjectFormOpen, setIsProjectFormOpen] = useState(false);
@@ -173,6 +174,98 @@ export default function DashboardPage() {
     if (selectedProject) {
       loadBugs(selectedProject.id);
     }
+  };
+
+  const handleExportTasks = () => {
+    const exportData = tasks.map((task) => ({
+      title: task.title,
+      description: task.description || '',
+      status: task.status,
+      priority: task.priority,
+      assignees: task.assignments.map((a) => a.user.name).join(', ') || 'Unassigned',
+      milestone: task.milestone?.name || 'No Milestone',
+      category: task.category || '',
+      createdBy: task.createdBy.name,
+      createdAt: new Date(task.createdAt).toLocaleDateString(),
+      updatedAt: new Date(task.updatedAt).toLocaleDateString(),
+    }));
+
+    const headers = [
+      { key: 'title' as const, label: 'Title' },
+      { key: 'description' as const, label: 'Description' },
+      { key: 'status' as const, label: 'Status' },
+      { key: 'priority' as const, label: 'Priority' },
+      { key: 'assignees' as const, label: 'Assignees' },
+      { key: 'milestone' as const, label: 'Milestone' },
+      { key: 'category' as const, label: 'Category' },
+      { key: 'createdBy' as const, label: 'Created By' },
+      { key: 'createdAt' as const, label: 'Created' },
+      { key: 'updatedAt' as const, label: 'Updated' },
+    ];
+
+    const filename = `${selectedProject?.name || 'project'}-tasks-${new Date().toISOString().split('T')[0]}.csv`;
+    exportToCSV(exportData, headers, filename);
+    showToast('Tasks exported successfully', 'success');
+  };
+
+  const handleExportBugs = () => {
+    const exportData = bugs.map((bug) => ({
+      title: bug.title,
+      description: bug.description || '',
+      status: bug.status,
+      priority: bug.priority,
+      assignees: bug.assignments.map((a) => a.user.name).join(', ') || 'Unassigned',
+      createdBy: bug.createdBy.name,
+      votes: bug.votes,
+      createdAt: new Date(bug.createdAt).toLocaleDateString(),
+      updatedAt: new Date(bug.updatedAt).toLocaleDateString(),
+    }));
+
+    const headers = [
+      { key: 'title' as const, label: 'Title' },
+      { key: 'description' as const, label: 'Description' },
+      { key: 'status' as const, label: 'Status' },
+      { key: 'priority' as const, label: 'Priority' },
+      { key: 'assignees' as const, label: 'Assignees' },
+      { key: 'createdBy' as const, label: 'Created By' },
+      { key: 'votes' as const, label: 'Votes' },
+      { key: 'createdAt' as const, label: 'Created' },
+      { key: 'updatedAt' as const, label: 'Updated' },
+    ];
+
+    const filename = `${selectedProject?.name || 'project'}-bugs-${new Date().toISOString().split('T')[0]}.csv`;
+    exportToCSV(exportData, headers, filename);
+    showToast('Bugs exported successfully', 'success');
+  };
+
+  const handleExportFeatures = () => {
+    const exportData = features.map((feature) => ({
+      title: feature.title,
+      description: feature.description || '',
+      status: feature.status,
+      priority: feature.priority,
+      assignees: feature.assignments.map((a) => a.user.name).join(', ') || 'Unassigned',
+      createdBy: feature.createdBy.name,
+      votes: feature.votes,
+      createdAt: new Date(feature.createdAt).toLocaleDateString(),
+      updatedAt: new Date(feature.updatedAt).toLocaleDateString(),
+    }));
+
+    const headers = [
+      { key: 'title' as const, label: 'Title' },
+      { key: 'description' as const, label: 'Description' },
+      { key: 'status' as const, label: 'Status' },
+      { key: 'priority' as const, label: 'Priority' },
+      { key: 'assignees' as const, label: 'Assignees' },
+      { key: 'createdBy' as const, label: 'Created By' },
+      { key: 'votes' as const, label: 'Votes' },
+      { key: 'createdAt' as const, label: 'Created' },
+      { key: 'updatedAt' as const, label: 'Updated' },
+    ];
+
+    const filename = `${selectedProject?.name || 'project'}-features-${new Date().toISOString().split('T')[0]}.csv`;
+    exportToCSV(exportData, headers, filename);
+    showToast('Feature requests exported successfully', 'success');
   };
 
   // Milestone handlers
@@ -420,6 +513,7 @@ export default function DashboardPage() {
                       tasks={tasks}
                       onTasksChange={handleTasksChange}
                       milestones={selectedProject.useMilestones ? milestones : []}
+                      onExport={handleExportTasks}
                     />
                   )
                 ) : activeTab === 'bugs' ? (
@@ -432,6 +526,7 @@ export default function DashboardPage() {
                       projectId={selectedProject.id}
                       bugs={bugs}
                       onBugsChange={handleBugsChange}
+                      onExport={handleExportBugs}
                     />
                   )
                 ) : isLoadingFeatures ? (
@@ -447,6 +542,7 @@ export default function DashboardPage() {
                         loadFeatures(selectedProject.id);
                       }
                     }}
+                    onExport={handleExportFeatures}
                   />
                 )}
               </div>

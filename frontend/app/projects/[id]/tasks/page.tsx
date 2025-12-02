@@ -8,6 +8,7 @@ import { type Task, taskApi } from '@/lib/api/task';
 import { type Project, projectApi } from '@/lib/api/project';
 import { milestoneApi, type Milestone } from '@/lib/api/milestone';
 import { useToast } from '@/lib/contexts/ToastContext';
+import { exportToCSV } from '@/lib/utils/csvExport';
 
 export default function ProjectTasksPage() {
   const params = useParams();
@@ -55,6 +56,38 @@ export default function ProjectTasksPage() {
     loadProjectAndTasks();
   };
 
+  const handleExportCSV = () => {
+    const exportData = tasks.map((task) => ({
+      title: task.title,
+      description: task.description || '',
+      status: task.status,
+      priority: task.priority,
+      assignees: task.assignments.map((a) => a.user.name).join(', ') || 'Unassigned',
+      milestone: task.milestone?.name || 'No Milestone',
+      category: task.category || '',
+      createdBy: task.createdBy.name,
+      createdAt: new Date(task.createdAt).toLocaleDateString(),
+      updatedAt: new Date(task.updatedAt).toLocaleDateString(),
+    }));
+
+    const headers = [
+      { key: 'title' as const, label: 'Title' },
+      { key: 'description' as const, label: 'Description' },
+      { key: 'status' as const, label: 'Status' },
+      { key: 'priority' as const, label: 'Priority' },
+      { key: 'assignees' as const, label: 'Assignees' },
+      { key: 'milestone' as const, label: 'Milestone' },
+      { key: 'category' as const, label: 'Category' },
+      { key: 'createdBy' as const, label: 'Created By' },
+      { key: 'createdAt' as const, label: 'Created' },
+      { key: 'updatedAt' as const, label: 'Updated' },
+    ];
+
+    const filename = `${project?.name || 'project'}-tasks-${new Date().toISOString().split('T')[0]}.csv`;
+    exportToCSV(exportData, headers, filename);
+    showToast('Tasks exported successfully', 'success');
+  };
+
   if (isLoading) {
     return (
       <DashboardLayout>
@@ -91,6 +124,7 @@ export default function ProjectTasksPage() {
             tasks={tasks}
             onTasksChange={handleTasksChange}
             milestones={project?.useMilestones ? milestones : []}
+            onExport={handleExportCSV}
           />
         </div>
       </div>

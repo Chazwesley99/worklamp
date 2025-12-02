@@ -24,6 +24,8 @@ Be the expert that you are in development, software architecture, software devel
 - Specific Admin assignment of users who can see Env Var
 - Adding Billing page to Team Settings
 - Assign invited users to which Team projects they can see
+- Export Tasks, Bugs, Requests for documentation
+- Add "My Assigned Tasks/Bugs"
 
 
 
