@@ -62,6 +62,13 @@ export function ChatPanel({ projectId, onClose }: ChatPanelProps) {
         ['messages', selectedChannelId],
         (old: { messages: Message[] } | undefined) => {
           if (!old) return { messages: [data.message] };
+
+          // Check if message already exists (avoid duplicates from optimistic updates)
+          const messageExists = old.messages.some((msg) => msg.id === data.message.id);
+          if (messageExists) {
+            return old;
+          }
+
           return {
             messages: [...old.messages, data.message],
           };
@@ -90,18 +97,7 @@ export function ChatPanel({ projectId, onClose }: ChatPanelProps) {
   // Create message mutation
   const createMessageMutation = useMutation({
     mutationFn: (content: string) => channelApi.createMessage(selectedChannelId!, { content }),
-    onSuccess: (newMessage) => {
-      // Optimistically add message to list
-      queryClient.setQueryData(
-        ['messages', selectedChannelId],
-        (old: { messages: Message[] } | undefined) => {
-          if (!old) return { messages: [newMessage] };
-          return {
-            messages: [...old.messages, newMessage],
-          };
-        }
-      );
-    },
+    // Don't add optimistically - let WebSocket handle it to avoid duplicates
   });
 
   const handleCreateChannel = () => {
