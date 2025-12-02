@@ -107,10 +107,28 @@ export class BugController {
       const tenantId = authReq.user!.tenantId;
       const userId = authReq.user!.userId;
 
-      const validatedData = createBugSchema.parse(req.body);
-
       // Handle image upload if present
       const file = (req as Express.Request & { file?: Express.Multer.File }).file;
+
+      // Parse body data - if it's FormData, some fields might be JSON strings
+      const bodyData: Record<string, unknown> = { ...req.body };
+
+      // Parse JSON fields if they're strings (from FormData)
+      if (typeof bodyData.assignedUserIds === 'string') {
+        try {
+          bodyData.assignedUserIds = JSON.parse(bodyData.assignedUserIds);
+        } catch {
+          bodyData.assignedUserIds = [];
+        }
+      }
+
+      // Convert numeric strings to numbers
+      if (typeof bodyData.priority === 'string') {
+        bodyData.priority = parseInt(bodyData.priority, 10);
+      }
+
+      const validatedData = createBugSchema.parse(bodyData);
+
       const imageBuffer = file?.buffer;
       const imageFilename = file?.originalname;
 

@@ -81,10 +81,20 @@ export const bugApi = {
    * Create a new bug
    */
   async createBug(projectId: string, data: CreateBugRequest, imageFile?: File): Promise<Bug> {
+    // Clean up data - convert empty strings to null
+    const cleanData = {
+      ...data,
+      url: data.url && data.url.trim() !== '' ? data.url : null,
+      ownerId: data.ownerId || null,
+      assignedUserIds: data.assignedUserIds || [],
+      priority: data.priority ?? 0,
+      status: data.status || 'open',
+    };
+
     if (imageFile) {
       const formData = new FormData();
       formData.append('image', imageFile);
-      Object.entries(data).forEach(([key, value]) => {
+      Object.entries(cleanData).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
           if (Array.isArray(value)) {
             formData.append(key, JSON.stringify(value));
@@ -94,11 +104,18 @@ export const bugApi = {
         }
       });
 
+      // Get access token from localStorage
+      const accessToken =
+        typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/projects/${projectId}/bugs`,
         {
           method: 'POST',
           credentials: 'include',
+          headers: {
+            ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
+          },
           body: formData,
         }
       );
@@ -111,7 +128,10 @@ export const bugApi = {
       const result = await response.json();
       return result.bug;
     } else {
-      const response = await apiClient.post<{ bug: Bug }>(`/api/projects/${projectId}/bugs`, data);
+      const response = await apiClient.post<{ bug: Bug }>(
+        `/api/projects/${projectId}/bugs`,
+        cleanData
+      );
       return response.bug;
     }
   },
@@ -154,11 +174,17 @@ export const bugApi = {
     const formData = new FormData();
     formData.append('image', imageFile);
 
+    // Get access token from localStorage
+    const accessToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/bugs/${bugId}/image`,
       {
         method: 'POST',
         credentials: 'include',
+        headers: {
+          ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
+        },
         body: formData,
       }
     );
