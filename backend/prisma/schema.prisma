@@ -42,6 +42,7 @@ model User {
   createdEnvVars   EnvVar[]         @relation("EnvVarCreator")
   createdChangeOrders ChangeOrder[] @relation("ChangeOrderCreator")
   userEnvVars      UserEnvVar[]
+  uploadedFiles    ProjectFile[]    @relation("FileUploader")
 
   @@index([email])
 }
@@ -105,8 +106,32 @@ model Project {
   channels        Channel[]
   envVars         EnvVar[]
   changeOrders    ChangeOrder[]
+  files           ProjectFile[]
 
   @@index([tenantId])
+}
+
+// ProjectFile model - for storing project documentation and files
+model ProjectFile {
+  id          String   @id @default(uuid())
+  projectId   String
+  fileName    String
+  originalName String
+  fileType    String   // 'requirements' | 'design' | 'tasks' | 'general'
+  fileUrl     String
+  fileSize    Int
+  mimeType    String
+  uploadedById String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  uploadedBy User @relation("FileUploader", fields: [uploadedById], references: [id])
+
+  @@index([projectId])
+  @@index([uploadedById])
+  @@index([fileType])
 }
 
 // Milestone model

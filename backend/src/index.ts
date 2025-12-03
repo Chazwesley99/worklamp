@@ -24,6 +24,7 @@ import newsletterRoutes from './routes/newsletter.routes';
 import contactRoutes from './routes/contact.routes';
 import aiConfigRoutes from './routes/aiconfig.routes';
 import aiRoutes from './routes/ai.routes';
+import projectFileRoutes from './routes/projectfile.routes';
 
 dotenv.config();
 
@@ -117,6 +118,7 @@ app.use('/api', channelRoutes);
 app.use('/api', envVarRoutes);
 app.use('/api/ai-config', aiConfigRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api', projectFileRoutes);
 
 // Health check endpoint
 app.get('/health', async (req, res) => {

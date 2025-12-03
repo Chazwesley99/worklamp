@@ -147,18 +147,19 @@ export class EmailService {
       return;
     }
 
-    const html = this.loadTemplate('invitation', {
-      tenantName,
-      inviterName,
-      invitationLink,
-    });
+    try {
+      const html = this.loadTemplate('invitation', {
+        tenantName,
+        inviterName,
+        invitationLink,
+      });
 
-    const mailOptions = {
-      from: process.env.SMTP_FROM || 'noreply@worklamp.com',
-      to: email,
-      subject: `You've been invited to join ${tenantName} on Worklamp`,
-      html,
-      text: `
+      const mailOptions = {
+        from: process.env.SMTP_FROM || 'noreply@worklamp.com',
+        to: email,
+        subject: `You've been invited to join ${tenantName} on Worklamp`,
+        html,
+        text: `
         You've been invited to join ${tenantName}
         
         ${inviterName} has invited you to join their team on Worklamp.
@@ -168,9 +169,20 @@ export class EmailService {
         
         This invitation will expire in 7 days.
       `,
-    };
+      };
 
-    await this.transporter.sendMail(mailOptions);
+      await this.transporter.sendMail(mailOptions);
+      console.log(`✓ Invitation email sent to ${email}`);
+    } catch (error) {
+      // Log error but don't throw - allow invitation to succeed
+      console.error('Failed to send invitation email:', error);
+      console.log('=== INVITATION EMAIL (FALLBACK) ===');
+      console.log(`To: ${email}`);
+      console.log(`From: ${inviterName}`);
+      console.log(`Tenant: ${tenantName}`);
+      console.log(`Invitation Link: ${invitationLink}`);
+      console.log('====================================');
+    }
   }
 
   /**
@@ -188,24 +200,34 @@ export class EmailService {
       return;
     }
 
-    const html = this.loadTemplate('verification', {
-      verificationLink,
-    });
+    try {
+      const html = this.loadTemplate('verification', {
+        verificationLink,
+      });
 
-    const mailOptions = {
-      from: process.env.SMTP_FROM || 'noreply@worklamp.com',
-      to: email,
-      subject: 'Verify your email address',
-      html,
-      text: `
+      const mailOptions = {
+        from: process.env.SMTP_FROM || 'noreply@worklamp.com',
+        to: email,
+        subject: 'Verify your email address',
+        html,
+        text: `
         Verify your email address
         
         Thank you for signing up for Worklamp! Please verify your email address by clicking this link:
         ${verificationLink}
       `,
-    };
+      };
 
-    await this.transporter.sendMail(mailOptions);
+      await this.transporter.sendMail(mailOptions);
+      console.log(`✓ Verification email sent to ${email}`);
+    } catch (error) {
+      // Log error but don't throw - allow registration to succeed
+      console.error('Failed to send verification email:', error);
+      console.log('=== VERIFICATION EMAIL (FALLBACK) ===');
+      console.log(`To: ${email}`);
+      console.log(`Verification Link: ${verificationLink}`);
+      console.log('=====================================');
+    }
   }
 
   /**

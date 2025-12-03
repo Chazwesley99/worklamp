@@ -192,6 +192,31 @@ export class StorageService {
   getStorageType(): 'local' | 'remote' {
     return this.config.type;
   }
+
+  /**
+   * Store a file (wrapper for uploadFile with simpler interface)
+   */
+  async storeFile(buffer: Buffer, folder: string, filename: string): Promise<string> {
+    const result = await this.uploadFile(buffer, filename, 'application/octet-stream', folder);
+    return result.url;
+  }
+
+  /**
+   * Get file content from storage
+   */
+  async getFileContent(fileUrl: string): Promise<Buffer> {
+    if (this.config.type === 'local') {
+      // Extract path from URL
+      const urlObj = new URL(fileUrl);
+      const relativePath = urlObj.pathname.replace('/uploads/', '');
+      const filePath = path.join(this.config.localPath!, relativePath);
+      return await fs.readFile(filePath);
+    } else {
+      // For S3, we'd need to implement GetObjectCommand
+      // For now, throw an error as this is primarily for local development
+      throw new Error('Remote file content retrieval not yet implemented');
+    }
+  }
 }
 
 export const storageService = new StorageService();
