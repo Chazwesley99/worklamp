@@ -13,9 +13,10 @@ interface TaskCardProps {
   onEdit: (task: Task) => void;
   onDelete: (taskId: string) => void;
   onStatusChange: (taskId: string, status: 'todo' | 'in-progress' | 'done') => void;
+  projectId?: string;
 }
 
-export function TaskCard({ task, onEdit, onDelete, onStatusChange }: TaskCardProps) {
+export function TaskCard({ task, onEdit, onDelete, onStatusChange, projectId }: TaskCardProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showAIAssistant, setShowAIAssistant] = useState(false);
@@ -67,6 +68,8 @@ export function TaskCard({ task, onEdit, onDelete, onStatusChange }: TaskCardPro
         category: task.category || undefined,
         priority: task.priority,
         status: task.status,
+        projectId,
+        includeSpecFiles: true,
       });
       console.log('AI analysis result:', result);
       setAiAnalysis(result);

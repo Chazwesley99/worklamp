@@ -8,6 +8,8 @@ export const analyzeBugSchema = z.object({
   description: z.string().min(1, 'Description is required'),
   url: z.string().url('Invalid URL').optional(),
   imageUrl: z.string().url('Invalid image URL').optional(),
+  projectId: z.string().optional(),
+  includeSpecFiles: z.boolean().optional(),
 });
 
 /**
@@ -16,6 +18,8 @@ export const analyzeBugSchema = z.object({
 export const generateFeatureSpecSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   description: z.string().optional(),
+  projectId: z.string().optional(),
+  includeSpecFiles: z.boolean().optional(),
 });
 
 /**
@@ -40,6 +44,8 @@ export const analyzeTaskSchema = z.object({
   category: z.string().optional(),
   priority: z.number().min(0).max(100),
   status: z.string().min(1, 'Status is required'),
+  projectId: z.string().optional(),
+  includeSpecFiles: z.boolean().optional(),
 });
 
 export type AnalyzeBugInput = z.infer<typeof analyzeBugSchema>;

@@ -13,6 +13,7 @@ interface FeatureRequestCardProps {
   onDelete?: (featureId: string) => void;
   onVote?: (featureId: string) => void;
   isPublicView?: boolean;
+  projectId?: string;
 }
 
 export default function FeatureRequestCard({
@@ -21,6 +22,7 @@ export default function FeatureRequestCard({
   onDelete,
   onVote,
   isPublicView = false,
+  projectId,
 }: FeatureRequestCardProps) {
   const { user } = useAuth();
   const { showToast } = useToast();
@@ -176,6 +178,8 @@ export default function FeatureRequestCard({
             type="feature"
             title={feature.title}
             description={feature.description}
+            projectId={projectId}
+            includeSpecFiles={true}
           />
         </div>
       )}

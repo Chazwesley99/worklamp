@@ -13,6 +13,7 @@ interface BugCardProps {
   onVote?: (bugId: string) => void;
   showVoting?: boolean;
   isPublicView?: boolean;
+  projectId?: string;
 }
 
 export function BugCard({
@@ -23,6 +24,7 @@ export function BugCard({
   onVote,
   showVoting = false,
   isPublicView = false,
+  projectId,
 }: BugCardProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -196,6 +198,8 @@ export function BugCard({
             description={bug.description}
             url={bug.url || undefined}
             imageUrl={bug.imageUrl || undefined}
+            projectId={projectId}
+            includeSpecFiles={true}
           />
         </div>
       )}

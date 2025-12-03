@@ -242,6 +242,7 @@ export function BugList({
               onVote={handleVote}
               showVoting={showVoting}
               isPublicView={isPublicView}
+              projectId={projectId}
             />
           ))}
         </div>

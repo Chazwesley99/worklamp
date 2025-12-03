@@ -15,6 +15,7 @@ interface FeatureRequestFormProps {
   onSubmit: (data: CreateFeatureInput | UpdateFeatureInput) => Promise<void>;
   feature?: FeatureRequest;
   teamMembers?: { id: string; name: string; email: string }[];
+  projectId?: string;
 }
 
 export default function FeatureRequestForm({
@@ -23,6 +24,7 @@ export default function FeatureRequestForm({
   onSubmit,
   feature,
   teamMembers = [],
+  projectId,
 }: FeatureRequestFormProps) {
   const [formData, setFormData] = useState<CreateFeatureInput>({
     title: '',
@@ -159,6 +161,8 @@ export default function FeatureRequestForm({
                   type="feature"
                   title={formData.title}
                   description={formData.description}
+                  projectId={projectId}
+                  includeSpecFiles={true}
                 />
               </div>
             )}

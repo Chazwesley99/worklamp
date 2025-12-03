@@ -16,6 +16,8 @@ interface AIAssistantPanelProps {
   description: string;
   url?: string;
   imageUrl?: string;
+  projectId?: string;
+  includeSpecFiles?: boolean;
 }
 
 export function AIAssistantPanel({
@@ -24,6 +26,8 @@ export function AIAssistantPanel({
   description,
   url,
   imageUrl,
+  projectId,
+  includeSpecFiles = true,
 }: AIAssistantPanelProps) {
   const [loading, setLoading] = useState(false);
   const [bugAnalysis, setBugAnalysis] = useState<AnalyzeBugResponse | null>(null);
@@ -40,12 +44,16 @@ export function AIAssistantPanel({
           description,
           url,
           imageUrl,
+          projectId,
+          includeSpecFiles,
         });
         setBugAnalysis(result);
       } else {
         const result = await aiApi.generateFeatureSpec({
           title,
           description,
+          projectId,
+          includeSpecFiles,
         });
         setFeatureSpec(result);
       }

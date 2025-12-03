@@ -279,6 +279,7 @@ export function TaskList({
                     onEdit={handleEditTask}
                     onDelete={handleDeleteTask}
                     onStatusChange={handleStatusChange}
+                    projectId={projectId}
                   />
                 ))}
               </div>

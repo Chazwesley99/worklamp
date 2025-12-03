@@ -222,6 +222,7 @@ export default function FeatureRequestList({
               onDelete={!isPublicView ? handleDelete : undefined}
               onVote={handleVote}
               isPublicView={isPublicView}
+              projectId={projectId}
             />
           ))}
         </div>
@@ -234,6 +235,7 @@ export default function FeatureRequestList({
         onSubmit={handleCreate}
         feature={editingFeature}
         teamMembers={teamMembers}
+        projectId={projectId}
       />
     </div>
   );

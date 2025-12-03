@@ -1,12 +1,16 @@
 import OpenAI from 'openai';
 import { GoogleGenAI } from '@google/genai';
 import { aiConfigService } from './aiconfig.service';
+import { projectFileService } from './projectfile.service';
+import { storageService } from './storage.service';
 
 export interface AnalyzeBugInput {
   title: string;
   description: string;
   url?: string;
   imageUrl?: string;
+  projectId?: string;
+  includeSpecFiles?: boolean;
 }
 
 export interface AnalyzeBugResult {
@@ -18,6 +22,8 @@ export interface AnalyzeBugResult {
 export interface GenerateFeatureSpecInput {
   title: string;
   description?: string;
+  projectId?: string;
+  includeSpecFiles?: boolean;
 }
 
 export interface GenerateFeatureSpecResult {
@@ -43,6 +49,8 @@ export interface AnalyzeTaskInput {
   category?: string;
   priority: number;
   status: string;
+  projectId?: string;
+  includeSpecFiles?: boolean;
 }
 
 export interface AnalyzeTaskResult {
@@ -52,6 +60,41 @@ export interface AnalyzeTaskResult {
 }
 
 export class AIService {
+  /**
+   * Fetch spec files (requirements and design) for a project
+   */
+  private async getSpecFilesContent(
+    projectId: string,
+    tenantId: string
+  ): Promise<{ requirements?: string; design?: string }> {
+    try {
+      const files = await projectFileService.getProjectFiles(projectId, tenantId);
+      const specFiles: { requirements?: string; design?: string } = {};
+
+      for (const file of files) {
+        if (file.fileType === 'requirements' || file.fileType === 'design') {
+          try {
+            const content = await storageService.getFileContent(file.fileUrl);
+            const textContent = content.toString('utf-8');
+
+            if (file.fileType === 'requirements') {
+              specFiles.requirements = textContent;
+            } else if (file.fileType === 'design') {
+              specFiles.design = textContent;
+            }
+          } catch (error) {
+            console.error(`Failed to read ${file.fileType} file:`, error);
+          }
+        }
+      }
+
+      return specFiles;
+    } catch (error) {
+      console.error('Failed to fetch spec files:', error);
+      return {};
+    }
+  }
+
   /**
    * Analyze a bug and provide suggested fixes and AI agent prompt
    */
@@ -66,6 +109,12 @@ export class AIService {
 
       // Determine which provider to use
       const provider = config.provider === 'platform' ? 'openai' : config.provider;
+
+      // Fetch spec files if requested
+      let specFiles: { requirements?: string; design?: string } = {};
+      if (input.includeSpecFiles && input.projectId) {
+        specFiles = await this.getSpecFilesContent(input.projectId, tenantId);
+      }
 
       // Build the prompt
       let prompt = `Analyze the following bug report and provide:
@@ -82,6 +131,19 @@ Bug Description: ${input.description}`;
 
       if (input.imageUrl) {
         prompt += `\nScreenshot available at: ${input.imageUrl}`;
+      }
+
+      // Include spec files if available
+      if (specFiles.requirements) {
+        prompt += `\n\n=== PROJECT REQUIREMENTS ===\n${specFiles.requirements}\n=== END REQUIREMENTS ===`;
+      }
+
+      if (specFiles.design) {
+        prompt += `\n\n=== PROJECT DESIGN ===\n${specFiles.design}\n=== END DESIGN ===`;
+      }
+
+      if (specFiles.requirements || specFiles.design) {
+        prompt += `\n\nPlease consider the above project specifications when analyzing this bug and generating suggestions.`;
       }
 
       prompt += `\n\nPlease format your response as JSON with the following structure:
@@ -126,6 +188,12 @@ Bug Description: ${input.description}`;
       // Determine which provider to use
       const provider = config.provider === 'platform' ? 'openai' : config.provider;
 
+      // Fetch spec files if requested
+      let specFiles: { requirements?: string; design?: string } = {};
+      if (input.includeSpecFiles && input.projectId) {
+        specFiles = await this.getSpecFilesContent(input.projectId, tenantId);
+      }
+
       // Build the prompt
       let prompt = `Generate a detailed feature specification for the following feature request:
 
@@ -133,6 +201,19 @@ Feature Title: ${input.title}`;
 
       if (input.description) {
         prompt += `\nInitial Description: ${input.description}`;
+      }
+
+      // Include spec files if available
+      if (specFiles.requirements) {
+        prompt += `\n\n=== PROJECT REQUIREMENTS ===\n${specFiles.requirements}\n=== END REQUIREMENTS ===`;
+      }
+
+      if (specFiles.design) {
+        prompt += `\n\n=== PROJECT DESIGN ===\n${specFiles.design}\n=== END DESIGN ===`;
+      }
+
+      if (specFiles.requirements || specFiles.design) {
+        prompt += `\n\nPlease consider the above project specifications when generating this feature specification to ensure consistency with the existing project architecture and requirements.`;
       }
 
       prompt += `\n\nPlease provide:
@@ -179,6 +260,12 @@ Format your response as JSON with the following structure:
       // Determine which provider to use
       const provider = config.provider === 'platform' ? 'openai' : config.provider;
 
+      // Fetch spec files if requested
+      let specFiles: { requirements?: string; design?: string } = {};
+      if (input.includeSpecFiles && input.projectId) {
+        specFiles = await this.getSpecFilesContent(input.projectId, tenantId);
+      }
+
       // Build the prompt
       let prompt = `Analyze the following task and provide:
 1. A suggested approach or steps to complete the task (2-5 steps)
@@ -194,6 +281,19 @@ Task Description: ${input.description}`;
 
       prompt += `\nPriority: ${input.priority}
 Status: ${input.status}`;
+
+      // Include spec files if available
+      if (specFiles.requirements) {
+        prompt += `\n\n=== PROJECT REQUIREMENTS ===\n${specFiles.requirements}\n=== END REQUIREMENTS ===`;
+      }
+
+      if (specFiles.design) {
+        prompt += `\n\n=== PROJECT DESIGN ===\n${specFiles.design}\n=== END DESIGN ===`;
+      }
+
+      if (specFiles.requirements || specFiles.design) {
+        prompt += `\n\nPlease consider the above project specifications when analyzing this task and generating the implementation approach.`;
+      }
 
       prompt += `\n\nIMPORTANT: You must respond with ONLY valid JSON. Do not include any markdown formatting, code blocks, or explanatory text.
 

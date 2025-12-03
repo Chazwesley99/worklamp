@@ -27,6 +27,8 @@ export interface AnalyzeBugRequest {
   description: string;
   url?: string;
   imageUrl?: string;
+  projectId?: string;
+  includeSpecFiles?: boolean;
 }
 
 export interface AnalyzeBugResponse {
@@ -38,6 +40,8 @@ export interface AnalyzeBugResponse {
 export interface GenerateFeatureSpecRequest {
   title: string;
   description?: string;
+  projectId?: string;
+  includeSpecFiles?: boolean;
 }
 
 export interface GenerateFeatureSpecResponse {
@@ -63,6 +67,8 @@ export interface AnalyzeTaskRequest {
   category?: string;
   priority: number;
   status: string;
+  projectId?: string;
+  includeSpecFiles?: boolean;
 }
 
 export interface AnalyzeTaskResponse {
