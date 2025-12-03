@@ -12,6 +12,7 @@ import MilestoneForm from '@/components/milestone/MilestoneForm';
 import ChangeOrderForm from '@/components/milestone/ChangeOrderForm';
 import ChangeOrderList from '@/components/milestone/ChangeOrderList';
 import { ChatPanel } from '@/components/channel/ChatPanel';
+import { UserNotes } from '@/components/note/UserNotes';
 import { type Task, taskApi } from '@/lib/api/task';
 import { type Bug, bugApi } from '@/lib/api/bug';
 import { type FeatureRequest, featureApi } from '@/lib/api/feature';
@@ -42,9 +43,9 @@ export default function DashboardPage() {
   const [isLoadingBugs, setIsLoadingBugs] = useState(false);
   const [isLoadingFeatures, setIsLoadingFeatures] = useState(false);
   const [isLoadingMilestones, setIsLoadingMilestones] = useState(false);
-  const [activeTab, setActiveTab] = useState<'milestones' | 'tasks' | 'bugs' | 'features' | 'chat'>(
-    'tasks'
-  );
+  const [activeTab, setActiveTab] = useState<
+    'milestones' | 'tasks' | 'bugs' | 'features' | 'chat' | 'notes'
+  >('tasks');
   const [isMilestoneFormOpen, setIsMilestoneFormOpen] = useState(false);
   const [isChangeOrderFormOpen, setIsChangeOrderFormOpen] = useState(false);
   const [isChangeOrderListOpen, setIsChangeOrderListOpen] = useState(false);
@@ -465,6 +466,16 @@ export default function DashboardPage() {
               >
                 Chat
               </button>
+              <button
+                onClick={() => setActiveTab('notes')}
+                className={`px-4 py-2 font-medium transition-colors ${
+                  activeTab === 'notes'
+                    ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                }`}
+              >
+                Notes
+              </button>
             </div>
 
             {/* Content */}
@@ -474,6 +485,10 @@ export default function DashboardPage() {
                 style={{ height: '600px' }}
               >
                 <ChatPanel projectId={selectedProject.id} />
+              </div>
+            ) : activeTab === 'notes' ? (
+              <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+                <UserNotes />
               </div>
             ) : (
               <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">

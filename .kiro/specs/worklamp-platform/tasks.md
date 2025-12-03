@@ -239,7 +239,7 @@
   - Comment UI component with real-time updates
   - _Requirements: 10.7_
 
-- [ ] 8. Checkpoint - Ensure all tests pass
+- [x] 8. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 - [x] 9. Real-Time Infrastructure
@@ -402,15 +402,15 @@
 - [ ] 14. Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 15. User Notes System
-- [ ] 15.1 Implement notes API
+- [x] 15. User Notes System
+- [x] 15.1 Implement notes API
   - GET /api/notes endpoint
   - POST /api/notes endpoint
   - PATCH /api/notes/:id endpoint
   - DELETE /api/notes/:id endpoint
   - _Requirements: 14.1, 14.2, 14.3, 14.4_
 
-- [ ] 15.2 Create notes UI component
+- [x] 15.2 Create notes UI component
   - UserNotes component with post-it styling
   - Draggable note positioning
   - Color selection

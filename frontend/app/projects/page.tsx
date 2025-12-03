@@ -5,11 +5,15 @@ import { useRouter } from 'next/navigation';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { ProjectList } from '@/components/project/ProjectList';
 import { ProjectForm } from '@/components/project/ProjectForm';
+import { ProjectFilesModal } from '@/components/project/ProjectFilesModal';
+import { ProjectEnvVarsModal } from '@/components/project/ProjectEnvVarsModal';
 import { type Project } from '@/lib/api/project';
 
 export default function ProjectsPage() {
   const router = useRouter();
   const [isProjectFormOpen, setIsProjectFormOpen] = useState(false);
+  const [isFilesModalOpen, setIsFilesModalOpen] = useState(false);
+  const [isEnvVarsModalOpen, setIsEnvVarsModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   const handleCreateProject = () => {
@@ -26,6 +30,16 @@ export default function ProjectsPage() {
     router.push(`/projects/${project.id}/settings`);
   };
 
+  const handleViewFiles = (project: Project) => {
+    setSelectedProject(project);
+    setIsFilesModalOpen(true);
+  };
+
+  const handleViewEnvVars = (project: Project) => {
+    setSelectedProject(project);
+    setIsEnvVarsModalOpen(true);
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -40,6 +54,8 @@ export default function ProjectsPage() {
           onCreateProject={handleCreateProject}
           onEditProject={handleEditProject}
           onSelectProject={handleSelectProject}
+          onViewFiles={handleViewFiles}
+          onViewEnvVars={handleViewEnvVars}
         />
 
         <ProjectForm
@@ -47,6 +63,22 @@ export default function ProjectsPage() {
           onClose={() => setIsProjectFormOpen(false)}
           project={selectedProject}
         />
+
+        {selectedProject && (
+          <>
+            <ProjectFilesModal
+              isOpen={isFilesModalOpen}
+              onClose={() => setIsFilesModalOpen(false)}
+              projectId={selectedProject.id}
+            />
+
+            <ProjectEnvVarsModal
+              isOpen={isEnvVarsModalOpen}
+              onClose={() => setIsEnvVarsModalOpen(false)}
+              projectId={selectedProject.id}
+            />
+          </>
+        )}
       </div>
     </DashboardLayout>
   );

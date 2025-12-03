@@ -110,6 +110,23 @@ export default function ProjectSettingsPage() {
   return (
     <div className="max-w-4xl mx-auto p-6">
       <div className="mb-6">
+        <a
+          href="/projects"
+          className="inline-flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 mb-4"
+        >
+          <svg
+            className="w-4 h-4 mr-1"
+            fill="none"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path d="M15 19l-7-7 7-7" />
+          </svg>
+          Back to Projects
+        </a>
         <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Project Settings</h1>
         <p className="text-gray-600 dark:text-gray-400 mt-1">
           Manage your project configuration and settings

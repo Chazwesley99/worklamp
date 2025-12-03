@@ -9,6 +9,8 @@ interface ProjectListProps {
   onSelectProject?: (project: Project) => void;
   onCreateProject?: () => void;
   onEditProject?: (project: Project) => void;
+  onViewFiles?: (project: Project) => void;
+  onViewEnvVars?: (project: Project) => void;
   selectedProjectId?: string;
 }
 
@@ -16,6 +18,8 @@ export function ProjectList({
   onSelectProject,
   onCreateProject,
   onEditProject,
+  onViewFiles,
+  onViewEnvVars,
   selectedProjectId,
 }: ProjectListProps) {
   const { data, isLoading, error } = useQuery({
@@ -112,20 +116,72 @@ export function ProjectList({
                 )}
               </div>
 
-              {onEditProject && (
-                <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-                  <Button
-                    variant="ghost"
-                    size="sm"
+              <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+                <div className="grid grid-cols-3 gap-2">
+                  {onEditProject && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onEditProject(project);
+                      }}
+                      className="flex items-center justify-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors"
+                    >
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                      Edit
+                    </button>
+                  )}
+                  <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      onEditProject(project);
+                      onViewFiles?.(project);
                     }}
+                    className="flex items-center justify-center gap-1.5 px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-md transition-colors"
                   >
-                    Edit
-                  </Button>
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                    </svg>
+                    Files
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onViewEnvVars?.(project);
+                    }}
+                    className="flex items-center justify-center gap-1.5 px-3 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md transition-colors"
+                  >
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                    Env Vars
+                  </button>
                 </div>
-              )}
+              </div>
             </div>
           ))}
         </div>
