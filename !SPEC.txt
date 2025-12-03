@@ -60,3 +60,17 @@ Test 5: Multiple round trips
   ✓ Match: true
 
 All tests passed! ✓
+
+
+
+
+Cutiepie1!!!
+
+
+
+
+Next steps:
+1. Update backend/.env with your specific configuration (database, OAuth, etc.)
+2. Run 'docker-compose -f docker-compose.dev.yml up -d' to start services
+3. Run 'npm install' to install dependencies
+4. Run 'npm run dev' to start the application
