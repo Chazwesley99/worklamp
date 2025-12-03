@@ -5,6 +5,10 @@ import { aiApi, AnalyzeBugResponse, GenerateFeatureSpecResponse } from '@/lib/ap
 import { Button } from '@/components/ui/Button';
 import { CopyButton } from '@/components/ui/CopyButton';
 import { useToast } from '@/lib/contexts/ToastContext';
+import { SafeRender } from '@/components/ui/SafeRender';
+import { JsonViewer } from '@/components/ui/JsonViewer';
+import { FeatureSpecViewer } from './FeatureSpecViewer';
+import { isRenderableValue, toRenderableString, isPlainObject } from '@/lib/utils/renderHelpers';
 
 interface AIAssistantPanelProps {
   type: 'bug' | 'feature';
@@ -97,63 +101,129 @@ export function AIAssistantPanel({
       </div>
 
       {type === 'bug' && bugAnalysis && (
-        <div className="space-y-4">
-          <div>
-            <h4 className="font-medium text-gray-900 dark:text-white mb-2">Analysis</h4>
-            <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-              {bugAnalysis.analysis}
-            </p>
-          </div>
-
-          <div>
-            <h4 className="font-medium text-gray-900 dark:text-white mb-2">Suggested Fixes</h4>
-            <ul className="list-disc list-inside space-y-1">
-              {bugAnalysis.suggestedFixes.map((fix, index) => (
-                <li key={index} className="text-sm text-gray-700 dark:text-gray-300">
-                  {fix}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <h4 className="font-medium text-gray-900 dark:text-white">AI Agent Prompt</h4>
-              <CopyButton value={bugAnalysis.aiAgentPrompt} />
+        <SafeRender data={bugAnalysis}>
+          <div className="space-y-4">
+            <div>
+              <h4 className="font-medium text-gray-900 dark:text-white mb-2">Analysis</h4>
+              <SafeRender data={bugAnalysis.analysis}>
+                <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                  {isRenderableValue(bugAnalysis.analysis)
+                    ? bugAnalysis.analysis
+                    : toRenderableString(bugAnalysis.analysis)}
+                </p>
+              </SafeRender>
             </div>
-            <div className="bg-gray-50 dark:bg-gray-900 rounded p-3 text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap font-mono">
-              {bugAnalysis.aiAgentPrompt}
+
+            <div>
+              <h4 className="font-medium text-gray-900 dark:text-white mb-2">Suggested Fixes</h4>
+              <SafeRender data={bugAnalysis.suggestedFixes}>
+                {Array.isArray(bugAnalysis.suggestedFixes) ? (
+                  <ul className="list-disc list-inside space-y-1">
+                    {bugAnalysis.suggestedFixes.map((fix, index) => (
+                      <li key={index} className="text-sm text-gray-700 dark:text-gray-300">
+                        {isRenderableValue(fix) ? fix : toRenderableString(fix)}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <JsonViewer data={bugAnalysis.suggestedFixes} title="Unexpected Fixes Format" />
+                )}
+              </SafeRender>
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="font-medium text-gray-900 dark:text-white">AI Agent Prompt</h4>
+                <CopyButton
+                  value={
+                    typeof bugAnalysis.aiAgentPrompt === 'string'
+                      ? bugAnalysis.aiAgentPrompt
+                      : toRenderableString(bugAnalysis.aiAgentPrompt)
+                  }
+                />
+              </div>
+              <SafeRender data={bugAnalysis.aiAgentPrompt}>
+                <div className="bg-gray-50 dark:bg-gray-900 rounded p-3 text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap font-mono">
+                  {isRenderableValue(bugAnalysis.aiAgentPrompt)
+                    ? bugAnalysis.aiAgentPrompt
+                    : toRenderableString(bugAnalysis.aiAgentPrompt)}
+                </div>
+              </SafeRender>
             </div>
           </div>
-        </div>
+        </SafeRender>
       )}
 
       {type === 'feature' && featureSpec && (
-        <div className="space-y-4">
-          <div>
-            <h4 className="font-medium text-gray-900 dark:text-white mb-2">Suggested Title</h4>
-            <p className="text-sm text-gray-700 dark:text-gray-300">{featureSpec.suggestedTitle}</p>
-          </div>
+        <SafeRender data={featureSpec}>
+          <div className="space-y-4">
+            {/* Show title and description if they're simple strings */}
+            {featureSpec.suggestedTitle && isRenderableValue(featureSpec.suggestedTitle) && (
+              <div>
+                <h4 className="font-medium text-gray-900 dark:text-white mb-2">Suggested Title</h4>
+                <p className="text-sm text-gray-700 dark:text-gray-300">
+                  {featureSpec.suggestedTitle}
+                </p>
+              </div>
+            )}
 
-          <div>
-            <h4 className="font-medium text-gray-900 dark:text-white mb-2">
-              Suggested Description
-            </h4>
-            <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-              {featureSpec.suggestedDescription}
-            </p>
-          </div>
+            {featureSpec.suggestedDescription &&
+              isRenderableValue(featureSpec.suggestedDescription) && (
+                <div>
+                  <h4 className="font-medium text-gray-900 dark:text-white mb-2">
+                    Suggested Description
+                  </h4>
+                  <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                    {featureSpec.suggestedDescription}
+                  </p>
+                </div>
+              )}
 
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <h4 className="font-medium text-gray-900 dark:text-white">Specification</h4>
-              <CopyButton value={featureSpec.specification} />
-            </div>
-            <div className="bg-gray-50 dark:bg-gray-900 rounded p-3 text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-              {featureSpec.specification}
+            {/* Specification - check if it's a structured spec or plain text */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="font-medium text-gray-900 dark:text-white">Specification</h4>
+                <CopyButton
+                  value={
+                    typeof featureSpec.specification === 'string'
+                      ? featureSpec.specification
+                      : toRenderableString(featureSpec.specification)
+                  }
+                />
+              </div>
+              <SafeRender data={featureSpec.specification}>
+                {(() => {
+                  // Check if specification is a structured object with userStories or technicalConsiderations
+                  if (
+                    isPlainObject(featureSpec.specification) &&
+                    (('userStories' in featureSpec.specification &&
+                      Array.isArray(featureSpec.specification.userStories)) ||
+                      ('technicalConsiderations' in featureSpec.specification &&
+                        isPlainObject(featureSpec.specification.technicalConsiderations)))
+                  ) {
+                    return (
+                      <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-800">
+                        <FeatureSpecViewer spec={featureSpec.specification} />
+                      </div>
+                    );
+                  }
+
+                  // Otherwise display as text or JSON
+                  if (isRenderableValue(featureSpec.specification)) {
+                    return (
+                      <div className="bg-gray-50 dark:bg-gray-900 rounded p-3 text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                        {featureSpec.specification}
+                      </div>
+                    );
+                  }
+
+                  // Fallback to JSON viewer
+                  return <JsonViewer data={featureSpec.specification} title="Specification Data" />;
+                })()}
+              </SafeRender>
             </div>
           </div>
-        </div>
+        </SafeRender>
       )}
 
       {!bugAnalysis && !featureSpec && (

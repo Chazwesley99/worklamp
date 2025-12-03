@@ -37,6 +37,20 @@ export interface GeneratePromptResult {
   prompt: string;
 }
 
+export interface AnalyzeTaskInput {
+  title: string;
+  description: string;
+  category?: string;
+  priority: number;
+  status: string;
+}
+
+export interface AnalyzeTaskResult {
+  suggestedApproach: string[];
+  aiAgentPrompt: string;
+  analysis: string;
+}
+
 export class AIService {
   /**
    * Analyze a bug and provide suggested fixes and AI agent prompt
@@ -151,6 +165,65 @@ Format your response as JSON with the following structure:
   }
 
   /**
+   * Analyze a task and provide suggested approach and AI agent prompt
+   */
+  async analyzeTask(tenantId: string, input: AnalyzeTaskInput): Promise<AnalyzeTaskResult> {
+    try {
+      // Get AI configuration
+      const config = await aiConfigService.getAIConfig(tenantId);
+
+      if (!config || !config.isEnabled) {
+        throw new Error('AI_NOT_CONFIGURED');
+      }
+
+      // Determine which provider to use
+      const provider = config.provider === 'platform' ? 'openai' : config.provider;
+
+      // Build the prompt
+      let prompt = `Analyze the following task and provide:
+1. A suggested approach or steps to complete the task (2-5 steps)
+2. A detailed AI agent prompt that could be used to implement this task
+3. A brief analysis of the task complexity and considerations
+
+Task Title: ${input.title}
+Task Description: ${input.description}`;
+
+      if (input.category) {
+        prompt += `\nCategory: ${input.category}`;
+      }
+
+      prompt += `\nPriority: ${input.priority}
+Status: ${input.status}`;
+
+      prompt += `\n\nIMPORTANT: You must respond with ONLY valid JSON. Do not include any markdown formatting, code blocks, or explanatory text.
+
+Respond with this exact JSON structure:
+{
+  "suggestedApproach": ["step1", "step2", "step3"],
+  "aiAgentPrompt": "detailed prompt for AI agent",
+  "analysis": "brief analysis"
+}
+
+Ensure all strings are properly escaped and the JSON is valid.`;
+
+      let result: AnalyzeTaskResult;
+
+      if (provider === 'openai') {
+        result = await this.callOpenAI<AnalyzeTaskResult>(tenantId, prompt);
+      } else if (provider === 'google') {
+        result = await this.callGoogleAI<AnalyzeTaskResult>(tenantId, prompt);
+      } else {
+        throw new Error('UNSUPPORTED_AI_PROVIDER');
+      }
+
+      return result;
+    } catch (error: unknown) {
+      console.error('AI task analysis error:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Generate an AI agent prompt for a bug or feature
    */
   async generatePrompt(
@@ -256,6 +329,26 @@ Format your response as JSON with the following structure:
   }
 
   /**
+   * Validate that the response matches expected structure
+   */
+  private validateResponse<T>(data: unknown, expectedKeys: string[]): T {
+    if (!data || typeof data !== 'object') {
+      throw new Error('INVALID_AI_RESPONSE_FORMAT');
+    }
+
+    const dataObj = data as Record<string, unknown>;
+    const missingKeys = expectedKeys.filter((key) => !(key in dataObj));
+
+    if (missingKeys.length > 0) {
+      console.error('Missing expected keys:', missingKeys);
+      console.error('Received data:', data);
+      throw new Error('INVALID_AI_RESPONSE_FORMAT');
+    }
+
+    return data as T;
+  }
+
+  /**
    * Call Google AI API
    */
   private async callGoogleAI<T>(tenantId: string, prompt: string): Promise<T> {
@@ -271,9 +364,8 @@ Format your response as JSON with the following structure:
         contents: prompt,
       });
 
-      console.log('Google AI response received:', response);
+      console.log('Google AI response received');
       console.log('Response type:', typeof response);
-      console.log('Response keys:', Object.keys(response));
 
       // Try different ways to get the text
       let text: string | undefined;
@@ -282,7 +374,7 @@ Format your response as JSON with the following structure:
       try {
         text = response.text;
       } catch (e) {
-        console.log('Could not access response.text:', e);
+        console.log('Could not access response.text, trying candidates structure');
       }
 
       // Fallback to candidates structure
@@ -291,7 +383,7 @@ Format your response as JSON with the following structure:
       }
 
       if (!text) {
-        console.error('No text in response. Full response:', JSON.stringify(response, null, 2));
+        console.error('No text in response');
         throw new Error('NO_RESPONSE_FROM_AI');
       }
 
@@ -306,27 +398,47 @@ Format your response as JSON with the following structure:
         jsonText = jsonText.replace(/```\n?/g, '');
       }
 
-      return JSON.parse(jsonText) as T;
+      // Try to parse JSON with better error handling
+      let parsedData: unknown;
+      try {
+        parsedData = JSON.parse(jsonText);
+      } catch (parseError) {
+        console.error('JSON parse error. Attempting to extract JSON object...');
+
+        // Try to find and extract just the JSON object
+        const jsonMatch = jsonText.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          try {
+            parsedData = JSON.parse(jsonMatch[0]);
+          } catch (secondError) {
+            console.error('Second parse attempt failed');
+            console.error('Raw text preview:', text.substring(0, 500));
+            throw new Error('INVALID_AI_RESPONSE_FORMAT');
+          }
+        } else {
+          console.error('Could not find JSON object in response');
+          console.error('Raw text preview:', text.substring(0, 500));
+          throw new Error('INVALID_AI_RESPONSE_FORMAT');
+        }
+      }
+
+      // Validate the structure based on expected type
+      // This is a basic validation - you might want to make this more sophisticated
+      if (!parsedData || typeof parsedData !== 'object') {
+        console.error('Parsed data is not an object:', parsedData);
+        throw new Error('INVALID_AI_RESPONSE_FORMAT');
+      }
+
+      return parsedData as T;
     } catch (error: unknown) {
       console.error('Google AI API error:', error);
       const err = error as Error & { status?: number; statusText?: string };
-      console.error('Error details:', {
-        status: err.status,
-        statusText: err.statusText,
-        message: err.message,
-        stack: err.stack,
-      });
-
-      // Log the full error object to understand the structure
-      try {
-        console.error('Full error object:', JSON.stringify(error, null, 2));
-      } catch {
-        console.error('Could not stringify error object');
-      }
 
       if (
         err.message === 'AI_NOT_CONFIGURED' ||
-        err.message === 'PLATFORM_API_KEY_NOT_CONFIGURED'
+        err.message === 'PLATFORM_API_KEY_NOT_CONFIGURED' ||
+        err.message === 'INVALID_AI_RESPONSE_FORMAT' ||
+        err.message === 'NO_RESPONSE_FROM_AI'
       ) {
         throw error;
       }

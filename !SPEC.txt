@@ -28,7 +28,7 @@ Be the expert that you are in development, software architecture, software devel
 - Add "My Assigned Tasks/Bugs" - mark as new if the item has not been viewed yet.
 - Option to turn off notifications per user
 
-
+- We currently have an AI Agent on the Tasks, Bugs, and Requests pages and they return valuable AI reports and prompts. I want a simple table in the database that will store the result JSON, the Task/Bug/Feature ID, and I assume an ID type (Task/Bug/Feature) and have these results show up under each task so users can reference them later (have them expand like the Bug card does). I also want all cards to have the same look and feel, so each should have the expanded section with buttons to Generate... and there should be an expansion section for each previous response (showing the latest to the oldest and labeled as "AI Response from YYYY-MM-DD" and when clicked it will expand to show the results.
 
 PS C:\Users\WesLowe\projects\Worklamp\backend> node test-encryption.js
 Testing encryption utilities...

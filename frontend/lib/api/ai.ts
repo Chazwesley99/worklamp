@@ -57,6 +57,20 @@ export interface GeneratePromptResponse {
   prompt: string;
 }
 
+export interface AnalyzeTaskRequest {
+  title: string;
+  description: string;
+  category?: string;
+  priority: number;
+  status: string;
+}
+
+export interface AnalyzeTaskResponse {
+  suggestedApproach: string[];
+  aiAgentPrompt: string;
+  analysis: string;
+}
+
 export const aiApi = {
   /**
    * Get AI configuration for current tenant
@@ -123,6 +137,14 @@ export const aiApi = {
    */
   async generatePrompt(data: GeneratePromptRequest): Promise<GeneratePromptResponse> {
     const response = await apiClient.post<GeneratePromptResponse>('/api/ai/generate-prompt', data);
+    return response;
+  },
+
+  /**
+   * Analyze a task using AI
+   */
+  async analyzeTask(data: AnalyzeTaskRequest): Promise<AnalyzeTaskResponse> {
+    const response = await apiClient.post<AnalyzeTaskResponse>('/api/ai/analyze-task', data);
     return response;
   },
 };

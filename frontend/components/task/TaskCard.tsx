@@ -3,6 +3,10 @@
 import { Task } from '@/lib/api/task';
 import { useState } from 'react';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
+import { aiApi, AnalyzeTaskResponse } from '@/lib/api/ai';
+import { useToast } from '@/lib/contexts/ToastContext';
+import { SafeRender } from '../ui/SafeRender';
+import { TaskAnalysisViewer } from '../ai/TaskAnalysisViewer';
 
 interface TaskCardProps {
   task: Task;
@@ -14,6 +18,10 @@ interface TaskCardProps {
 export function TaskCard({ task, onEdit, onDelete, onStatusChange }: TaskCardProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showAIAssistant, setShowAIAssistant] = useState(false);
+  const [aiAnalysis, setAiAnalysis] = useState<AnalyzeTaskResponse | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const { showToast } = useToast();
 
   const handleDeleteClick = () => {
     setShowDeleteConfirm(true);
@@ -47,6 +55,29 @@ export function TaskCard({ task, onEdit, onDelete, onStatusChange }: TaskCardPro
     if (priority >= 50) return 'text-orange-600 dark:text-orange-400';
     if (priority >= 20) return 'text-yellow-600 dark:text-yellow-400';
     return 'text-gray-600 dark:text-gray-400';
+  };
+
+  const handleAIAnalyze = async () => {
+    try {
+      setIsAnalyzing(true);
+      console.log('Analyzing task:', task.title);
+      const result = await aiApi.analyzeTask({
+        title: task.title,
+        description: task.description || '',
+        category: task.category || undefined,
+        priority: task.priority,
+        status: task.status,
+      });
+      console.log('AI analysis result:', result);
+      setAiAnalysis(result);
+      setShowAIAssistant(true);
+    } catch (error: unknown) {
+      console.error('AI analysis error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to analyze task';
+      showToast(errorMessage, 'error');
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   return (
@@ -101,6 +132,15 @@ export function TaskCard({ task, onEdit, onDelete, onStatusChange }: TaskCardPro
         </div>
 
         <div className="flex items-center gap-1">
+          <button
+            onClick={handleAIAnalyze}
+            disabled={isAnalyzing}
+            className="p-1 text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 disabled:opacity-50"
+            title="AI Assistant"
+          >
+            {isAnalyzing ? '⏳' : '🤖'}
+          </button>
+
           <select
             value={task.status}
             onChange={(e) =>
@@ -132,6 +172,31 @@ export function TaskCard({ task, onEdit, onDelete, onStatusChange }: TaskCardPro
           </button>
         </div>
       </div>
+
+      {/* AI Assistant Panel */}
+      {showAIAssistant && aiAnalysis && (
+        <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between mb-3">
+            <h4 className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+              🤖 AI Assistant
+            </h4>
+            <button
+              onClick={() => setShowAIAssistant(false)}
+              className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+            >
+              ✕
+            </button>
+          </div>
+
+          <SafeRender data={aiAnalysis}>
+            <TaskAnalysisViewer
+              analysis={aiAnalysis.analysis}
+              suggestedApproach={aiAnalysis.suggestedApproach}
+              aiAgentPrompt={aiAnalysis.aiAgentPrompt}
+            />
+          </SafeRender>
+        </div>
+      )}
 
       <ConfirmDialog
         isOpen={showDeleteConfirm}

@@ -31,6 +31,18 @@ export const generatePromptSchema = z.object({
   context: z.string().optional(),
 });
 
+/**
+ * Validator for analyzing a task
+ */
+export const analyzeTaskSchema = z.object({
+  title: z.string().min(1, 'Title is required'),
+  description: z.string().min(1, 'Description is required'),
+  category: z.string().optional(),
+  priority: z.number().min(0).max(100),
+  status: z.string().min(1, 'Status is required'),
+});
+
 export type AnalyzeBugInput = z.infer<typeof analyzeBugSchema>;
 export type GenerateFeatureSpecInput = z.infer<typeof generateFeatureSpecSchema>;
 export type GeneratePromptInput = z.infer<typeof generatePromptSchema>;
+export type AnalyzeTaskInput = z.infer<typeof analyzeTaskSchema>;

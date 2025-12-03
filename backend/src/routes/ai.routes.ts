@@ -11,5 +11,6 @@ router.use(authenticate);
 router.post('/analyze-bug', aiController.analyzeBug);
 router.post('/generate-feature-spec', aiController.generateFeatureSpec);
 router.post('/generate-prompt', aiController.generatePrompt);
+router.post('/analyze-task', aiController.analyzeTask);
 
 export default router;
