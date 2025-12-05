@@ -82,7 +82,7 @@ export async function joinChannelRoom(
 
   // Check if channel is private and user has permission
   if (channel.isPrivate) {
-    const hasPermission = channel.permissions.some((p) => p.canView);
+    const hasPermission = channel.permissions.some((p: any) => p.canView);
     if (!hasPermission) {
       throw new Error('No permission to view this channel');
     }

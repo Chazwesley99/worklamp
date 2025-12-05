@@ -27,7 +27,7 @@ apt update && apt upgrade -y
 
 ```bash
 # Create user
-adduser worklamp
+    adduser worklamp
 
 # Add to sudo group
 usermod -aG sudo worklamp
@@ -168,7 +168,7 @@ EOF
 
 # Create frontend .env.local file
 cat > frontend/.env.local << 'EOF'
-NEXT_PUBLIC_API_URL=https://yourdomain.com/api
+NEXT_PUBLIC_API_URL=https://worklamp.com/api
 EOF
 ```
 
@@ -203,6 +203,11 @@ npm install
 # Build backend
 cd backend
 npm install
+
+# Generate Prisma Client
+npx prisma generate
+
+# Build TypeScript
 npm run build
 cd ..
 
@@ -331,45 +336,13 @@ pm2 logs
 sudo nano /etc/nginx/sites-available/worklamp
 ```
 
-Add this configuration:
+Add this **HTTP-only** configuration (Certbot will automatically add HTTPS):
 
 ```nginx
-# Redirect HTTP to HTTPS
 server {
     listen 80;
     listen [::]:80;
     server_name yourdomain.com www.yourdomain.com;
-
-    # For Let's Encrypt verification
-    location /.well-known/acme-challenge/ {
-        root /var/www/html;
-    }
-
-    location / {
-        return 301 https://$server_name$request_uri;
-    }
-}
-
-# HTTPS configuration
-server {
-    listen 443 ssl http2;
-    listen [::]:443 ssl http2;
-    server_name yourdomain.com www.yourdomain.com;
-
-    # SSL certificates (will be added by Certbot)
-    # ssl_certificate /etc/letsencrypt/live/yourdomain.com/fullchain.pem;
-    # ssl_certificate_key /etc/letsencrypt/live/yourdomain.com/privkey.pem;
-
-    # SSL configuration
-    ssl_protocols TLSv1.2 TLSv1.3;
-    ssl_ciphers HIGH:!aNULL:!MD5;
-    ssl_prefer_server_ciphers on;
-
-    # Security headers
-    add_header X-Frame-Options "SAMEORIGIN" always;
-    add_header X-Content-Type-Options "nosniff" always;
-    add_header X-XSS-Protection "1; mode=block" always;
-    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
 
     # Client body size (for file uploads)
     client_max_body_size 10M;
@@ -398,8 +371,6 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_cache_bypass $http_upgrade;
-
-        # Increase timeout for long-running requests
         proxy_read_timeout 300s;
         proxy_connect_timeout 75s;
     }
@@ -413,7 +384,6 @@ server {
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
     }
 
     # Static files (uploads)
@@ -454,20 +424,35 @@ sudo apt install -y certbot python3-certbot-nginx
 
 ### Obtain SSL certificate
 
+Certbot will automatically:
+
+- Obtain SSL certificates
+- Update your Nginx configuration
+- Add HTTPS redirect
+- Configure SSL settings
+
 ```bash
-# Get certificate (replace with your domain and email)
+# Get certificate and auto-configure Nginx (replace with your domain and email)
 sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com --email your-email@example.com --agree-tos --no-eff-email
 
 # Test automatic renewal
 sudo certbot renew --dry-run
 ```
 
-Certbot will automatically update your Nginx configuration with SSL certificates.
+That's it! Certbot has automatically:
 
-### Restart Nginx
+- ✅ Added SSL certificates
+- ✅ Created HTTPS server block
+- ✅ Added HTTP to HTTPS redirect
+- ✅ Configured secure SSL settings
+
+### Verify HTTPS is working
 
 ```bash
-sudo systemctl restart nginx
+# Check Nginx configuration
+sudo nginx -t
+
+# Your site should now be accessible at https://yourdomain.com
 ```
 
 ## Step 9: Verify Deployment

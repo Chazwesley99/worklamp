@@ -108,7 +108,7 @@ export class TenantController {
       const members = await tenantService.getTenantMembers(tenantId);
 
       res.json({
-        members: members.map((member) => ({
+        members: members.map((member: any) => ({
           id: member.id,
           role: member.role,
           user: member.user,

@@ -161,7 +161,7 @@ export class NotificationService {
       },
     });
 
-    const adminUserIds = adminMembers.map((member) => member.userId);
+    const adminUserIds = adminMembers.map((member: any) => member.userId);
 
     if (adminUserIds.length === 0) {
       return { count: 0 };
@@ -199,7 +199,7 @@ export class NotificationService {
       },
     });
 
-    const adminUserIds = adminMembers.map((member) => member.userId);
+    const adminUserIds = adminMembers.map((member: any) => member.userId);
 
     if (adminUserIds.length === 0) {
       return { count: 0 };
@@ -258,7 +258,7 @@ export class NotificationService {
       },
     });
 
-    const adminUserIds = adminMembers.map((member) => member.userId);
+    const adminUserIds = adminMembers.map((member: any) => member.userId);
 
     if (adminUserIds.length === 0) {
       return { count: 0 };

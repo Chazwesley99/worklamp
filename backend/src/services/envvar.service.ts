@@ -47,7 +47,7 @@ export async function getEnvVarsByProject(projectId: string) {
   });
 
   // Decrypt values before returning
-  return envVars.map((envVar) => ({
+  return envVars.map((envVar: any) => ({
     ...envVar,
     value: decrypt(envVar.value),
   }));

@@ -37,7 +37,7 @@ const TENANT_ISOLATED_MODELS = [
 ];
 
 // Tenant isolation middleware
-prisma.$use(async (params, next) => {
+prisma.$use(async (params: any, next: any) => {
   const context = tenantContext.getStore();
 
   // Skip middleware if no tenant context (e.g., during seeding or system operations)

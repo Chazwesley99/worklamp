@@ -65,7 +65,7 @@ export class ChannelService {
     });
 
     // Transform to include user's permissions at the channel level
-    return channels.map((channel) => ({
+    return channels.map((channel: any) => ({
       ...channel,
       userPermissions: channel.permissions[0] || {
         canView: !channel.isPrivate,
