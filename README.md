@@ -1,5 +1,9 @@
 # Worklamp
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Node.js Version](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen)](https://nodejs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)](https://www.typescriptlang.org/)
+
 Comprehensive project management and collaboration platform for development teams.
 
 ## Project Structure
@@ -116,6 +120,33 @@ See the `/DOCS` directory for detailed documentation:
 - Testing documentation: `/DOCS/testing/`
 - Deployment guides: `/DOCS/deployment/`
 
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
 ## License
 
-Private - All rights reserved
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+### What this means:
+
+- ✅ Commercial use allowed
+- ✅ Modification allowed
+- ✅ Distribution allowed
+- ✅ Private use allowed
+- ⚠️ No warranty provided
+- ⚠️ No liability accepted
+
+## Support
+
+For issues, questions, or contributions, please open an issue on GitHub.
+
+## Acknowledgments
+
+Built with modern web technologies and best practices for enterprise-grade project management.

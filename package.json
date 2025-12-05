@@ -1,7 +1,8 @@
 {
   "name": "worklamp",
   "version": "1.0.0",
-  "private": true,
+  "license": "MIT",
+  "private": false,
   "workspaces": [
     "frontend",
     "backend",

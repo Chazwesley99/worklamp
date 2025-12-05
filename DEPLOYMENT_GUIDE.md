@@ -168,7 +168,7 @@ EOF
 
 # Create frontend .env.local file
 cat > frontend/.env.local << 'EOF'
-NEXT_PUBLIC_API_URL=https://worklamp.com/api
+NEXT_PUBLIC_API_URL=https://worklamp.com
 EOF
 ```
 
@@ -237,10 +237,15 @@ docker-compose logs -f
 
 ```bash
 cd backend
-npm run migrate
+
+# Apply migrations (production mode - no prompts)
+npx prisma migrate deploy
+
+# OR for development with prompts:
+# npm run prisma:migrate
 
 # Seed initial data (optional)
-npm run seed
+npm run prisma:seed
 
 cd ..
 ```
@@ -342,10 +347,10 @@ Add this **HTTP-only** configuration (Certbot will automatically add HTTPS):
 server {
     listen 80;
     listen [::]:80;
-    server_name yourdomain.com www.yourdomain.com;
+    server_name worklamp.com www.worklamp.com;
 
     # Client body size (for file uploads)
-    client_max_body_size 10M;
+    client_max_body_size 100M;
 
     # Frontend (Next.js)
     location / {
@@ -402,7 +407,7 @@ server {
 
 ```bash
 # Create symbolic link
-sudo ln -s /etc/nginx/sites-available/worklamp /etc/nginx/sites-enabled/
+sudo ln -s /etc/nginx/sites-available/worklamp.com /etc/nginx/sites-enabled/
 
 # Remove default site
 sudo rm /etc/nginx/sites-enabled/default
@@ -433,7 +438,7 @@ Certbot will automatically:
 
 ```bash
 # Get certificate and auto-configure Nginx (replace with your domain and email)
-sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com --email your-email@example.com --agree-tos --no-eff-email
+sudo certbot --nginx -d worklamp.com -d www.worklamp.com --email your-email@example.com --agree-tos --no-eff-email
 
 # Test automatic renewal
 sudo certbot renew --dry-run
