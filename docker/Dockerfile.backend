@@ -9,10 +9,9 @@ WORKDIR /app
 
 # Copy package files
 COPY backend/package*.json ./
-COPY package*.json ../
 
 # Install dependencies
-RUN npm ci
+RUN npm install --production=false
 
 # Install Prisma CLI
 RUN npm install -g prisma
