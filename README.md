@@ -4,7 +4,80 @@
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)](https://www.typescriptlang.org/)
 
-Comprehensive project management and collaboration platform for development teams.
+A comprehensive project management and collaboration platform built specifically for development teams. Worklamp combines task tracking, bug management, feature requests, team communication, and AI-powered development workflows into a single, secure, self-hosted solution.
+
+## ✨ Key Features
+
+### 🎯 Project Management
+
+- **Multi-Project Support** - Manage multiple projects with tenant isolation
+- **Milestone Tracking** - Visual timeline with version locking and change order management
+- **Task Management** - Organize tasks by categories, priorities, and milestones
+- **Custom Workflows** - Flexible status tracking (To Do, In Progress, Done)
+
+### 🐛 Issue Tracking
+
+- **Bug Tracking** - Report bugs with screenshots, URLs, and priority levels
+- **Feature Requests** - Collect and prioritize feature ideas with voting
+- **Public Access** - Optional public bug/feature tracking for community input
+- **Vote System** - Let users vote on bugs and features to prioritize work
+
+### 👥 Team Collaboration
+
+- **Real-Time Chat** - Slack-like team communication with channels
+- **Role-Based Access** - Owner, Admin, Developer, and Auditor roles
+- **Team Invitations** - Email-based team member invitations
+- **Live Updates** - WebSocket-powered real-time dashboard updates
+
+### 🤖 AI-Powered Features
+
+- **Bug Analysis** - AI-powered bug fix suggestions and solutions
+- **Feature Specifications** - Auto-generate detailed feature specs
+- **AI Agent Prompts** - Generate prompts for AI coding assistants
+- **Spec File Integration** - Upload requirements, design, and task files for context
+
+### 🔐 Security & Authentication
+
+- **Multi-Tenant Architecture** - Complete data isolation between tenants
+- **Email/Password Auth** - Secure local authentication with bcrypt
+- **Google OAuth** - Single sign-on with Google accounts
+- **JWT Sessions** - Secure token-based authentication with refresh tokens
+- **Role-Based Permissions** - Granular access control for all features
+
+### 📁 File & Configuration Management
+
+- **Project Files** - Upload and manage project documentation
+- **Environment Variables** - Secure, encrypted storage for dev/prod configs
+- **Personal Notes** - Post-it style notes for quick reminders
+- **Image Optimization** - Automatic image compression and optimization
+
+### 📧 Communication
+
+- **Email Notifications** - Notify admins of new bugs and feature requests
+- **Email Verification** - Secure account activation
+- **Newsletter System** - Built-in newsletter subscription management
+- **MJML Templates** - Beautiful, responsive email templates
+
+### 🎨 User Experience
+
+- **Dark/Light Mode** - Theme toggle with localStorage persistence
+- **Responsive Design** - Mobile-optimized interface
+- **Real-Time Indicators** - Live connection status and "new" badges
+- **Minimal UI** - Clean, efficient design with minimal clicks
+
+### 🚀 Developer-Friendly
+
+- **Self-Hosted** - Run on your own infrastructure
+- **Docker Support** - Easy deployment with Docker Compose
+- **REST API** - Well-documented RESTful API
+- **WebSocket Events** - Real-time event system
+- **TypeScript** - Full type safety across the stack
+- **Property-Based Testing** - Comprehensive test coverage with fast-check
+
+### 📊 Subscription Tiers
+
+- **Free Tier** - 1 project, basic task management
+- **Paid Tier** - Unlimited projects, team features, milestones, and chat
 
 ## Project Structure
 
