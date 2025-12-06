@@ -11,9 +11,8 @@ A comprehensive project management and collaboration platform built specifically
 Visit: https://worklamp.com
 
 Sign Up with Google (easiest) or a valid email address.
-If using email, verify your email and then log in.
-You can work on one project and use all functions
-The only limitations are the team functions (which are not in production yet)
+You can work on one project and use all functions.
+Team Settings are not developed completely yet and are not available in Demo.
 
 ## ✨ Key Features
 
