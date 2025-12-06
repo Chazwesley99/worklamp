@@ -8,8 +8,8 @@ import { CopyButton } from '@/components/ui/CopyButton';
 import { useToast } from '@/lib/contexts/ToastContext';
 import { SafeRender } from '@/components/ui/SafeRender';
 import { JsonViewer } from '@/components/ui/JsonViewer';
-import { FeatureSpecViewer } from './FeatureSpecViewer';
-import { isRenderableValue, toRenderableString, isPlainObject } from '@/lib/utils/renderHelpers';
+import { FeatureSpecificationViewer } from './FeatureSpecificationViewer';
+import { isRenderableValue, toRenderableString } from '@/lib/utils/renderHelpers';
 
 interface AIAssistantPanelProps {
   type: 'bug' | 'feature';
@@ -197,73 +197,7 @@ export function AIAssistantPanel({
 
       {type === 'feature' && featureSpec && (
         <SafeRender data={featureSpec}>
-          <div className="space-y-4">
-            {/* Show title and description if they're simple strings */}
-            {featureSpec.suggestedTitle && isRenderableValue(featureSpec.suggestedTitle) && (
-              <div>
-                <h4 className="font-medium text-gray-900 dark:text-white mb-2">Suggested Title</h4>
-                <p className="text-sm text-gray-700 dark:text-gray-300">
-                  {featureSpec.suggestedTitle}
-                </p>
-              </div>
-            )}
-
-            {featureSpec.suggestedDescription &&
-              isRenderableValue(featureSpec.suggestedDescription) && (
-                <div>
-                  <h4 className="font-medium text-gray-900 dark:text-white mb-2">
-                    Suggested Description
-                  </h4>
-                  <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-                    {featureSpec.suggestedDescription}
-                  </p>
-                </div>
-              )}
-
-            {/* Specification - check if it's a structured spec or plain text */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <h4 className="font-medium text-gray-900 dark:text-white">Specification</h4>
-                <CopyButton
-                  value={
-                    typeof featureSpec.specification === 'string'
-                      ? featureSpec.specification
-                      : toRenderableString(featureSpec.specification)
-                  }
-                />
-              </div>
-              <SafeRender data={featureSpec.specification}>
-                {(() => {
-                  // Check if specification is a structured object with userStories or technicalConsiderations
-                  if (
-                    isPlainObject(featureSpec.specification) &&
-                    (('userStories' in featureSpec.specification &&
-                      Array.isArray(featureSpec.specification.userStories)) ||
-                      ('technicalConsiderations' in featureSpec.specification &&
-                        isPlainObject(featureSpec.specification.technicalConsiderations)))
-                  ) {
-                    return (
-                      <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-800">
-                        <FeatureSpecViewer spec={featureSpec.specification} />
-                      </div>
-                    );
-                  }
-
-                  // Otherwise display as text or JSON
-                  if (isRenderableValue(featureSpec.specification)) {
-                    return (
-                      <div className="bg-gray-50 dark:bg-gray-900 rounded p-3 text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-                        {featureSpec.specification}
-                      </div>
-                    );
-                  }
-
-                  // Fallback to JSON viewer
-                  return <JsonViewer data={featureSpec.specification} title="Specification Data" />;
-                })()}
-              </SafeRender>
-            </div>
-          </div>
+          <FeatureSpecificationViewer responseData={featureSpec} />
         </SafeRender>
       )}
 

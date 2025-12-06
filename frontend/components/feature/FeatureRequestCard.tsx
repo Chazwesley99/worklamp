@@ -8,9 +8,7 @@ import { Button } from '../ui/Button';
 import { AIAssistantPanel } from '../ai/AIAssistantPanel';
 import { AIResponseHistory } from '../ai/AIResponseHistory';
 import { SafeRender } from '../ui/SafeRender';
-import { FeatureSpecViewer } from '../ai/FeatureSpecViewer';
-import { CopyButton } from '../ui/CopyButton';
-import { isRenderableValue, toRenderableString, isPlainObject } from '@/lib/utils/renderHelpers';
+import { FeatureSpecificationViewer } from '../ai/FeatureSpecificationViewer';
 
 interface FeatureRequestCardProps {
   feature: FeatureRequest;
@@ -202,59 +200,7 @@ export default function FeatureRequestCard({
             resourceId={feature.id}
             renderResponse={(responseData) => (
               <SafeRender data={responseData}>
-                <div className="space-y-4">
-                  {responseData.suggestedTitle &&
-                    isRenderableValue(responseData.suggestedTitle) && (
-                      <div>
-                        <h4 className="font-medium text-gray-900 dark:text-white mb-2">
-                          Suggested Title
-                        </h4>
-                        <p className="text-sm text-gray-700 dark:text-gray-300">
-                          {responseData.suggestedTitle}
-                        </p>
-                      </div>
-                    )}
-
-                  {responseData.suggestedDescription &&
-                    isRenderableValue(responseData.suggestedDescription) && (
-                      <div>
-                        <h4 className="font-medium text-gray-900 dark:text-white mb-2">
-                          Suggested Description
-                        </h4>
-                        <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-                          {responseData.suggestedDescription}
-                        </p>
-                      </div>
-                    )}
-
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-medium text-gray-900 dark:text-white">Specification</h4>
-                      <CopyButton
-                        value={
-                          typeof responseData.specification === 'string'
-                            ? responseData.specification
-                            : toRenderableString(responseData.specification)
-                        }
-                      />
-                    </div>
-                    <SafeRender data={responseData.specification}>
-                      {isPlainObject(responseData.specification) &&
-                      (('userStories' in responseData.specification &&
-                        Array.isArray(responseData.specification.userStories)) ||
-                        ('technicalConsiderations' in responseData.specification &&
-                          isPlainObject(responseData.specification.technicalConsiderations))) ? (
-                        <FeatureSpecViewer spec={responseData.specification} />
-                      ) : isRenderableValue(responseData.specification) ? (
-                        <div className="bg-gray-50 dark:bg-gray-900 rounded p-3 text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-                          {responseData.specification}
-                        </div>
-                      ) : (
-                        <div className="text-sm text-gray-500">Unable to render specification</div>
-                      )}
-                    </SafeRender>
-                  </div>
-                </div>
+                <FeatureSpecificationViewer responseData={responseData} />
               </SafeRender>
             )}
           />
