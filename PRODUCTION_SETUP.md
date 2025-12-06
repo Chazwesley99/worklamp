@@ -112,6 +112,7 @@ Make sure your `backend/.env` file has these settings:
 
 ```env
 # Database
+# NOTE: Set DB password below (worklamp_dev_password) and set in docker-compose.yml as well
 DATABASE_URL=postgresql://worklamp:worklamp_dev_password@localhost:5432/worklamp
 DATABASE_URL_DEMO=postgresql://worklamp:worklamp_dev_password@localhost:5433/worklamp_demo
 
@@ -126,7 +127,7 @@ SESSION_SECRET=your-secure-session-secret-here
 # Google OAuth
 GOOGLE_CLIENT_ID=your-google-client-id
 GOOGLE_CLIENT_SECRET=your-google-client-secret
-GOOGLE_CALLBACK_URL=http://localhost:3001/api/auth/google/callback
+GOOGLE_CALLBACK_URL=http://worklamp.com/api/auth/google/callback
 
 # Admin
 ADMIN_EMAIL=your-admin@email.com
@@ -145,7 +146,9 @@ LOCAL_STORAGE_PATH=./uploads
 # Application
 NODE_ENV=production
 PORT=3001
-FRONTEND_URL=http://localhost:3000
+FRONTEND_URL=http://worklamp.com
+BACKEND_URL=https://worklamp.com
+# BACKEND_URL is important for mapping the uploads directory for images and files
 ```
 
 ### Frontend (.env.local)
@@ -153,7 +156,8 @@ FRONTEND_URL=http://localhost:3000
 Create `frontend/.env.local`:
 
 ```env
-NEXT_PUBLIC_API_URL=http://localhost:3001
+NEXT_PUBLIC_API_URL=https://worklamp.com
+NEXT_PUBLIC_BACKEND_URL=https://worklamp.com
 ```
 
 ## Troubleshooting

@@ -16,11 +16,19 @@ export class AuthController {
       // Create user
       const { user, verificationToken } = await authService.signup(validatedData);
 
-      // Send verification email
-      await emailService.sendVerificationEmail(user.email, verificationToken);
+      // Send verification email only if email verification is not skipped
+      const skipEmailVerification = process.env.SKIP_EMAIL_VERIFICATION === 'true';
+
+      if (!skipEmailVerification) {
+        await emailService.sendVerificationEmail(user.email, verificationToken);
+      }
+
+      const message = skipEmailVerification
+        ? 'User registered successfully. You can now log in.'
+        : 'User registered successfully. Please check your email to verify your account.';
 
       res.status(201).json({
-        message: 'User registered successfully. Please check your email to verify your account.',
+        message,
         user,
       });
     } catch (error) {

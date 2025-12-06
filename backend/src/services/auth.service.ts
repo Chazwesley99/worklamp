@@ -31,6 +31,9 @@ export class AuthService {
     // Hash password
     const passwordHash = await hashPassword(data.password);
 
+    // Check if email verification should be skipped (for development)
+    const skipEmailVerification = process.env.SKIP_EMAIL_VERIFICATION === 'true';
+
     // Create user
     const user = await prisma.user.create({
       data: {
@@ -38,7 +41,7 @@ export class AuthService {
         passwordHash,
         name: data.name,
         authProvider: 'email',
-        emailVerified: false,
+        emailVerified: skipEmailVerification,
         emailOptIn: data.agreeToEmails,
       },
       select: {

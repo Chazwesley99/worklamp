@@ -6,6 +6,15 @@
 
 A comprehensive project management and collaboration platform built specifically for development teams. Worklamp combines task tracking, bug management, feature requests, team communication, and AI-powered development workflows into a single, secure, self-hosted solution.
 
+## DEMO INFO
+
+Visit: https://worklamp.com
+
+Sign Up with Google (easiest) or a valid email address.
+If using email, verify your email and then log in.
+You can work on one project and use all functions
+The only limitations are the team functions (which are not in production yet)
+
 ## ✨ Key Features
 
 ### 🎯 Project Management
