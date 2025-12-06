@@ -159,6 +159,7 @@ export class AuthService {
       tenantId: primaryMembership.tenantId,
       role: primaryMembership.role,
       email: user.email,
+      isAdmin: user.isAdmin,
     });
 
     return {
@@ -212,6 +213,7 @@ export class AuthService {
         tenantId: primaryMembership.tenantId,
         role: primaryMembership.role,
         email: user.email,
+        isAdmin: user.isAdmin,
       });
 
       return tokens;

@@ -12,6 +12,7 @@ export interface TokenPayload {
   tenantId: string;
   role: string;
   email: string;
+  isAdmin?: boolean;
 }
 
 export interface TokenPair {

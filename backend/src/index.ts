@@ -27,6 +27,7 @@ import aiRoutes from './routes/ai.routes';
 import aiResponseRoutes from './routes/aiResponse.routes';
 import projectFileRoutes from './routes/projectfile.routes';
 import noteRoutes from './routes/note.routes';
+import adminRoutes from './routes/admin.routes';
 
 dotenv.config();
 
@@ -108,6 +109,7 @@ app.use('/uploads', express.static('uploads'));
 app.use('/api/auth', authRoutes);
 app.use('/api/newsletter', newsletterRoutes); // Move before generic /api routes
 app.use('/api/contact', contactRoutes); // Move before generic /api routes
+app.use('/api/admin', adminRoutes); // Admin routes
 app.use('/api/users', userRoutes);
 app.use('/api/tenants', tenantRoutes);
 app.use('/api/projects', projectRoutes);

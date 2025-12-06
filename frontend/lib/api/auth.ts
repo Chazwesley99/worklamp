@@ -8,6 +8,7 @@ export interface User {
   authProvider: 'email' | 'google';
   emailVerified: boolean;
   emailOptIn: boolean;
+  isAdmin: boolean;
   createdAt: string;
   updatedAt: string;
 }
