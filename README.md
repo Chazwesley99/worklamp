@@ -10,6 +10,11 @@ A comprehensive project management and collaboration platform built specifically
 
 Visit: https://worklamp.com
 
+U: test@worklamp.com
+P: TestPass123!
+
+-- OR --
+
 Sign Up with Google (easiest) or a valid email address.
 You can work on one project and use all functions.
 Team Settings are not developed completely yet and are not available in Demo.

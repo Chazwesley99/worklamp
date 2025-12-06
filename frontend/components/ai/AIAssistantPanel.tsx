@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { aiApi, AnalyzeBugResponse, GenerateFeatureSpecResponse } from '@/lib/api/ai';
+import { aiResponseApi } from '@/lib/api/aiResponse';
 import { Button } from '@/components/ui/Button';
 import { CopyButton } from '@/components/ui/CopyButton';
 import { useToast } from '@/lib/contexts/ToastContext';
@@ -18,6 +19,8 @@ interface AIAssistantPanelProps {
   imageUrl?: string;
   projectId?: string;
   includeSpecFiles?: boolean;
+  onAnalysisComplete?: (result: any) => void;
+  resourceId?: string;
 }
 
 export function AIAssistantPanel({
@@ -28,6 +31,8 @@ export function AIAssistantPanel({
   imageUrl,
   projectId,
   includeSpecFiles = true,
+  onAnalysisComplete,
+  resourceId,
 }: AIAssistantPanelProps) {
   const [loading, setLoading] = useState(false);
   const [bugAnalysis, setBugAnalysis] = useState<AnalyzeBugResponse | null>(null);
@@ -48,6 +53,20 @@ export function AIAssistantPanel({
           includeSpecFiles,
         });
         setBugAnalysis(result);
+
+        // Save to history if resourceId is provided
+        if (resourceId) {
+          try {
+            await aiResponseApi.saveResponse({
+              resourceType: 'bug',
+              resourceId,
+              responseData: result,
+            });
+            onAnalysisComplete?.(result);
+          } catch (saveError) {
+            console.error('Failed to save AI response:', saveError);
+          }
+        }
       } else {
         const result = await aiApi.generateFeatureSpec({
           title,
@@ -56,6 +75,20 @@ export function AIAssistantPanel({
           includeSpecFiles,
         });
         setFeatureSpec(result);
+
+        // Save to history if resourceId is provided
+        if (resourceId) {
+          try {
+            await aiResponseApi.saveResponse({
+              resourceType: 'feature',
+              resourceId,
+              responseData: result,
+            });
+            onAnalysisComplete?.(result);
+          } catch (saveError) {
+            console.error('Failed to save AI response:', saveError);
+          }
+        }
       }
     } catch (error: unknown) {
       console.error('AI analysis error:', error);

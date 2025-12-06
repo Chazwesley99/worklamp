@@ -6,6 +6,11 @@ import { useAuth } from '@/lib/contexts/AuthContext';
 import { useToast } from '@/lib/contexts/ToastContext';
 import { Button } from '../ui/Button';
 import { AIAssistantPanel } from '../ai/AIAssistantPanel';
+import { AIResponseHistory } from '../ai/AIResponseHistory';
+import { SafeRender } from '../ui/SafeRender';
+import { FeatureSpecViewer } from '../ai/FeatureSpecViewer';
+import { CopyButton } from '../ui/CopyButton';
+import { isRenderableValue, toRenderableString, isPlainObject } from '@/lib/utils/renderHelpers';
 
 interface FeatureRequestCardProps {
   feature: FeatureRequest;
@@ -28,7 +33,8 @@ export default function FeatureRequestCard({
   const { showToast } = useToast();
   const [isDeleting, setIsDeleting] = useState(false);
   const [isVoting, setIsVoting] = useState(false);
-  const [showAI, setShowAI] = useState(false);
+  const [showAISection, setShowAISection] = useState(false);
+  const [refreshHistory, setRefreshHistory] = useState(0);
 
   const handleVote = async () => {
     if (isVoting) return;
@@ -153,8 +159,12 @@ export default function FeatureRequestCard({
           {/* Actions */}
           {!isPublicView && user && (
             <div className="flex items-center gap-2">
-              <Button variant="secondary" size="sm" onClick={() => setShowAI(!showAI)}>
-                🤖 {showAI ? 'Hide' : 'Show'} AI
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => setShowAISection(!showAISection)}
+              >
+                {showAISection ? '▼' : '▶'} AI
               </Button>
               {onEdit && (
                 <Button variant="secondary" size="sm" onClick={() => onEdit(feature)}>
@@ -171,15 +181,82 @@ export default function FeatureRequestCard({
         </div>
       </div>
 
-      {/* AI Assistant Panel */}
-      {showAI && !isPublicView && (
-        <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+      {/* AI Section */}
+      {showAISection && !isPublicView && (
+        <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 space-y-4">
           <AIAssistantPanel
             type="feature"
             title={feature.title}
             description={feature.description}
             projectId={projectId}
             includeSpecFiles={true}
+            onAnalysisComplete={() => {
+              setRefreshHistory((prev) => prev + 1);
+            }}
+            resourceId={feature.id}
+          />
+
+          <AIResponseHistory
+            key={refreshHistory}
+            resourceType="feature"
+            resourceId={feature.id}
+            renderResponse={(responseData) => (
+              <SafeRender data={responseData}>
+                <div className="space-y-4">
+                  {responseData.suggestedTitle &&
+                    isRenderableValue(responseData.suggestedTitle) && (
+                      <div>
+                        <h4 className="font-medium text-gray-900 dark:text-white mb-2">
+                          Suggested Title
+                        </h4>
+                        <p className="text-sm text-gray-700 dark:text-gray-300">
+                          {responseData.suggestedTitle}
+                        </p>
+                      </div>
+                    )}
+
+                  {responseData.suggestedDescription &&
+                    isRenderableValue(responseData.suggestedDescription) && (
+                      <div>
+                        <h4 className="font-medium text-gray-900 dark:text-white mb-2">
+                          Suggested Description
+                        </h4>
+                        <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                          {responseData.suggestedDescription}
+                        </p>
+                      </div>
+                    )}
+
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-medium text-gray-900 dark:text-white">Specification</h4>
+                      <CopyButton
+                        value={
+                          typeof responseData.specification === 'string'
+                            ? responseData.specification
+                            : toRenderableString(responseData.specification)
+                        }
+                      />
+                    </div>
+                    <SafeRender data={responseData.specification}>
+                      {isPlainObject(responseData.specification) &&
+                      (('userStories' in responseData.specification &&
+                        Array.isArray(responseData.specification.userStories)) ||
+                        ('technicalConsiderations' in responseData.specification &&
+                          isPlainObject(responseData.specification.technicalConsiderations))) ? (
+                        <FeatureSpecViewer spec={responseData.specification} />
+                      ) : isRenderableValue(responseData.specification) ? (
+                        <div className="bg-gray-50 dark:bg-gray-900 rounded p-3 text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                          {responseData.specification}
+                        </div>
+                      ) : (
+                        <div className="text-sm text-gray-500">Unable to render specification</div>
+                      )}
+                    </SafeRender>
+                  </div>
+                </div>
+              </SafeRender>
+            )}
           />
         </div>
       )}

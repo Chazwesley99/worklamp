@@ -4,9 +4,11 @@ import { Task } from '@/lib/api/task';
 import { useState } from 'react';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { aiApi, AnalyzeTaskResponse } from '@/lib/api/ai';
+import { aiResponseApi } from '@/lib/api/aiResponse';
 import { useToast } from '@/lib/contexts/ToastContext';
 import { SafeRender } from '../ui/SafeRender';
 import { TaskAnalysisViewer } from '../ai/TaskAnalysisViewer';
+import { AIResponseHistory } from '../ai/AIResponseHistory';
 
 interface TaskCardProps {
   task: Task;
@@ -19,9 +21,10 @@ interface TaskCardProps {
 export function TaskCard({ task, onEdit, onDelete, onStatusChange, projectId }: TaskCardProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [showAIAssistant, setShowAIAssistant] = useState(false);
+  const [showAISection, setShowAISection] = useState(false);
   const [aiAnalysis, setAiAnalysis] = useState<AnalyzeTaskResponse | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [refreshHistory, setRefreshHistory] = useState(0);
   const { showToast } = useToast();
 
   const handleDeleteClick = () => {
@@ -73,7 +76,19 @@ export function TaskCard({ task, onEdit, onDelete, onStatusChange, projectId }: 
       });
       console.log('AI analysis result:', result);
       setAiAnalysis(result);
-      setShowAIAssistant(true);
+      setShowAISection(true);
+
+      // Save the AI response to history
+      try {
+        await aiResponseApi.saveResponse({
+          resourceType: 'task',
+          resourceId: task.id,
+          responseData: result,
+        });
+        setRefreshHistory((prev) => prev + 1);
+      } catch (saveError) {
+        console.error('Failed to save AI response:', saveError);
+      }
     } catch (error: unknown) {
       console.error('AI analysis error:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to analyze task';
@@ -136,12 +151,11 @@ export function TaskCard({ task, onEdit, onDelete, onStatusChange, projectId }: 
 
         <div className="flex items-center gap-1">
           <button
-            onClick={handleAIAnalyze}
-            disabled={isAnalyzing}
-            className="p-1 text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 disabled:opacity-50"
-            title="AI Assistant"
+            onClick={() => setShowAISection(!showAISection)}
+            className="p-1 text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400"
+            title="Toggle AI Section"
           >
-            {isAnalyzing ? '⏳' : '🤖'}
+            {showAISection ? '▼' : '▶'}
           </button>
 
           <select
@@ -176,28 +190,48 @@ export function TaskCard({ task, onEdit, onDelete, onStatusChange, projectId }: 
         </div>
       </div>
 
-      {/* AI Assistant Panel */}
-      {showAIAssistant && aiAnalysis && (
-        <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between mb-3">
+      {/* AI Section */}
+      {showAISection && (
+        <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 space-y-4">
+          <div className="flex items-center justify-between">
             <h4 className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
               🤖 AI Assistant
             </h4>
             <button
-              onClick={() => setShowAIAssistant(false)}
-              className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+              onClick={handleAIAnalyze}
+              disabled={isAnalyzing}
+              className="px-3 py-1 text-sm bg-purple-600 hover:bg-purple-700 text-white rounded disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              ✕
+              {isAnalyzing ? 'Analyzing...' : 'Generate Analysis'}
             </button>
           </div>
 
-          <SafeRender data={aiAnalysis}>
-            <TaskAnalysisViewer
-              analysis={aiAnalysis.analysis}
-              suggestedApproach={aiAnalysis.suggestedApproach}
-              aiAgentPrompt={aiAnalysis.aiAgentPrompt}
-            />
-          </SafeRender>
+          {aiAnalysis && (
+            <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
+              <SafeRender data={aiAnalysis}>
+                <TaskAnalysisViewer
+                  analysis={aiAnalysis.analysis}
+                  suggestedApproach={aiAnalysis.suggestedApproach}
+                  aiAgentPrompt={aiAnalysis.aiAgentPrompt}
+                />
+              </SafeRender>
+            </div>
+          )}
+
+          <AIResponseHistory
+            key={refreshHistory}
+            resourceType="task"
+            resourceId={task.id}
+            renderResponse={(responseData) => (
+              <SafeRender data={responseData}>
+                <TaskAnalysisViewer
+                  analysis={responseData.analysis}
+                  suggestedApproach={responseData.suggestedApproach}
+                  aiAgentPrompt={responseData.aiAgentPrompt}
+                />
+              </SafeRender>
+            )}
+          />
         </div>
       )}
 

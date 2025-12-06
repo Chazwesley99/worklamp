@@ -24,6 +24,7 @@ import newsletterRoutes from './routes/newsletter.routes';
 import contactRoutes from './routes/contact.routes';
 import aiConfigRoutes from './routes/aiconfig.routes';
 import aiRoutes from './routes/ai.routes';
+import aiResponseRoutes from './routes/aiResponse.routes';
 import projectFileRoutes from './routes/projectfile.routes';
 import noteRoutes from './routes/note.routes';
 
@@ -119,6 +120,7 @@ app.use('/api', channelRoutes);
 app.use('/api', envVarRoutes);
 app.use('/api/ai-config', aiConfigRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/ai-responses', aiResponseRoutes);
 app.use('/api', projectFileRoutes);
 app.use('/api', noteRoutes);
 

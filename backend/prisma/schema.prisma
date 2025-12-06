@@ -496,3 +496,15 @@ model UserEnvVar {
   @@unique([userId, key])
   @@index([userId])
 }
+
+// AIResponse model - Store AI analysis results for tasks, bugs, and features
+model AIResponse {
+  id           String   @id @default(uuid())
+  resourceType String   // 'task' | 'bug' | 'feature'
+  resourceId   String
+  responseData Json     // Store the full AI response JSON
+  createdAt    DateTime @default(now())
+
+  @@index([resourceType, resourceId])
+  @@index([createdAt])
+}

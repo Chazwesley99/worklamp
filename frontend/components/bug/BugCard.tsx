@@ -4,6 +4,9 @@ import { Bug } from '@/lib/api/bug';
 import { useState } from 'react';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { AIAssistantPanel } from '../ai/AIAssistantPanel';
+import { AIResponseHistory } from '../ai/AIResponseHistory';
+import { SafeRender } from '../ui/SafeRender';
+import { BugAnalysisViewer } from '../ai/BugAnalysisViewer';
 
 interface BugCardProps {
   bug: Bug;
@@ -28,7 +31,8 @@ export function BugCard({
 }: BugCardProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [showAI, setShowAI] = useState(false);
+  const [showAISection, setShowAISection] = useState(false);
+  const [refreshHistory, setRefreshHistory] = useState(0);
 
   const handleDeleteClick = () => {
     setShowDeleteConfirm(true);
@@ -144,6 +148,14 @@ export function BugCard({
 
         {!isPublicView && (
           <div className="flex items-center gap-1">
+            <button
+              onClick={() => setShowAISection(!showAISection)}
+              className="p-1 text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400"
+              title="Toggle AI Section"
+            >
+              {showAISection ? '▼' : '▶'}
+            </button>
+
             <select
               value={bug.status}
               onChange={(e) =>
@@ -160,14 +172,6 @@ export function BugCard({
               <option value="resolved">Resolved</option>
               <option value="closed">Closed</option>
             </select>
-
-            <button
-              onClick={() => setShowAI(!showAI)}
-              className="p-1 text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400"
-              title="AI Assistant"
-            >
-              🤖
-            </button>
 
             <button
               onClick={() => onEdit(bug)}
@@ -189,9 +193,9 @@ export function BugCard({
         )}
       </div>
 
-      {/* AI Assistant Panel */}
-      {showAI && !isPublicView && (
-        <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+      {/* AI Section */}
+      {showAISection && !isPublicView && (
+        <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 space-y-4">
           <AIAssistantPanel
             type="bug"
             title={bug.title}
@@ -200,6 +204,25 @@ export function BugCard({
             imageUrl={bug.imageUrl || undefined}
             projectId={projectId}
             includeSpecFiles={true}
+            onAnalysisComplete={() => {
+              setRefreshHistory((prev) => prev + 1);
+            }}
+            resourceId={bug.id}
+          />
+
+          <AIResponseHistory
+            key={refreshHistory}
+            resourceType="bug"
+            resourceId={bug.id}
+            renderResponse={(responseData) => (
+              <SafeRender data={responseData}>
+                <BugAnalysisViewer
+                  analysis={responseData.analysis}
+                  suggestedFixes={responseData.suggestedFixes}
+                  aiAgentPrompt={responseData.aiAgentPrompt}
+                />
+              </SafeRender>
+            )}
           />
         </div>
       )}
