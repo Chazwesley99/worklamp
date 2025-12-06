@@ -123,6 +123,7 @@ REDIS_URL=redis://localhost:6379
 JWT_SECRET=your-secure-jwt-secret-here
 JWT_REFRESH_SECRET=your-secure-refresh-secret-here
 SESSION_SECRET=your-secure-session-secret-here
+SKIP_EMAIL_VERIFICATION=true
 
 # Google OAuth
 GOOGLE_CLIENT_ID=your-google-client-id

@@ -42,6 +42,7 @@ su - worklamp
 sudo ufw allow OpenSSH
 sudo ufw allow 80/tcp
 sudo ufw allow 443/tcp
+sudo ufw allow 5555/tcp (optioanl for Prisma Access)
 sudo ufw enable
 sudo ufw status
 ```
@@ -140,11 +141,12 @@ REDIS_URL=redis://localhost:6379
 JWT_SECRET=$(openssl rand -base64 32)
 JWT_REFRESH_SECRET=$(openssl rand -base64 32)
 SESSION_SECRET=$(openssl rand -base64 32)
+SKIP_EMAIL_VERIFICATION=true
 
 # Google OAuth
 GOOGLE_CLIENT_ID=your-google-client-id
 GOOGLE_CLIENT_SECRET=your-google-client-secret
-GOOGLE_CALLBACK_URL=https://yourdomain.com/api/auth/google/callback
+GOOGLE_CALLBACK_URL=https://worklamp.com/api/auth/google/callback
 
 # Admin
 ADMIN_EMAIL=admin@yourdomain.com
@@ -163,14 +165,18 @@ LOCAL_STORAGE_PATH=./uploads
 # Application
 NODE_ENV=production
 PORT=3001
-FRONTEND_URL=https://yourdomain.com
+FRONTEND_URL=https://worklamp.com
+BACKEND_URL=https://worklamp.com
 EOF
 
 # Create frontend .env.local file
 cat > frontend/.env.local << 'EOF'
 NEXT_PUBLIC_API_URL=https://worklamp.com
+NEXT_PUBLIC_BACKEND_URL=https://worklamp.com
 EOF
 ```
+
+Set the DB password set above in docker-compose.yml
 
 ### Generate secure secrets
 
