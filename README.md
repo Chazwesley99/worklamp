@@ -10,8 +10,7 @@ A comprehensive project management and collaboration platform built specifically
 
 Visit: https://worklamp.com
 
-U: test@worklamp.com
-P: TestPass123!
+U: test@worklamp.com / P: TestPass123!
 
 -- OR --
 
